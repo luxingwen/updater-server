@@ -46,6 +46,26 @@ func (app *App) Use(handlers ...HandlerFunc) {
 	}
 }
 
+func (app *App) GET(relativePath string, hf HandlerFunc) {
+	app.Router.GET(relativePath, app.Wrap(hf))
+}
+
+func (app *App) POST(relativePath string, hf HandlerFunc) {
+	app.Router.POST(relativePath, app.Wrap(hf))
+}
+
+func (app *App) PUT(relativePath string, hf HandlerFunc) {
+	app.Router.PUT(relativePath, app.Wrap(hf))
+}
+
+func (app *App) DELETE(relativePath string, hf HandlerFunc) {
+	app.Router.DELETE(relativePath, app.Wrap(hf))
+}
+
+func (app *App) PATCH(relativePath string, hf HandlerFunc) {
+	app.Router.PATCH(relativePath, app.Wrap(hf))
+}
+
 func (rg *AppRouterGroup) GET(relativePath string, hf HandlerFunc) {
 	rg.RouterGroup.GET(relativePath, rg.App.Wrap(hf))
 }

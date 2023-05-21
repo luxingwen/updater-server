@@ -14,13 +14,13 @@ type Config struct {
 }
 
 type LogConfig struct {
-	Level    string
-	Format   string
-	File     string // 日志文件路径
-	MaxSize  int    // 最大文件大小（MB）
-	MaxAge   int    // 最大文件保留天数
-	Compress bool   // 是否压缩
-	Filename string
+	Level        string
+	Format       string
+	MaxSize      int  // 最大文件大小（MB）
+	MaxAge       int  // 最大文件保留天数
+	Compress     bool // 是否压缩
+	Filename     string
+	ResponseSize int // 字节
 }
 
 type MySQLConfig struct {
@@ -36,9 +36,8 @@ var (
 )
 
 func InitConfig() {
-	loadConfigFile()
 	bindEnvs()
-	unmarshalConfig()
+	loadConfigFile()
 }
 
 func loadConfigFile() {
@@ -54,6 +53,13 @@ func loadConfigFile() {
 	if err := v.ReadInConfig(); err != nil {
 		log.Fatalf("failed to read config file: %v", err)
 	}
+
+	config = &Config{}
+
+	err := v.Unmarshal(&config)
+	if err != nil {
+		log.Fatalf("failed to parse config file: %v", err)
+	}
 }
 
 func bindEnvs() {
@@ -68,14 +74,6 @@ func bindEnvs() {
 	viper.BindEnv("LogConfig.Compress", "LOG_COMPRESS")
 	viper.BindEnv("MySQL.Host", "MYSQL_HOST")
 	viper.BindEnv("MySQL.Port", "MYSQL_PORT")
-}
-
-func unmarshalConfig() {
-	config = &Config{}
-
-	if err := viper.Unmarshal(config); err != nil {
-		log.Fatalf("failed to parse config file: %v", err)
-	}
 }
 
 func GetConfig() *Config {

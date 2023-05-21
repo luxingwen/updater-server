@@ -58,6 +58,7 @@ type ActionContent struct {
 type ProgramAction struct {
 	ID          uint      `gorm:"primaryKey"`
 	ProgramUUID string    `json:"programUUID" gorm:"index"`
+	Name        string    `json:"name"`
 	ActionType  string    `json:"actionType"`
 	Content     string    `json:"content"`
 	Status      string    `json:"status"`
@@ -72,4 +73,9 @@ type ProgramActionTemplate struct {
 	Status       string          `json:"status"`
 	CreatedAt    time.Time       `json:"createdAt"`
 	UpdatedAt    time.Time       `json:"updatedAt"`
+}
+
+type TemplateAction struct {
+	ProgramAction
+	Sequence int `json:"sequence"`
 }
