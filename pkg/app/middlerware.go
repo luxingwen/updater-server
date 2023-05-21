@@ -2,6 +2,7 @@ package app
 
 import (
 	"bytes"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -11,18 +12,22 @@ import (
 func RequestLogger() HandlerFunc {
 	return func(c *Context) {
 		// 读取请求体
-		body, err := c.GetRawData()
+		// 读取请求体
+		bodyBytes, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
 			// 处理错误
 			c.JSONError(http.StatusBadRequest, "读取请求体失败")
 			return
 		}
 
+		// 将 body 内容写回
+		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+
 		fields := []zap.Field{
 			zap.String("method", c.Request.Method),
 			zap.String("path", c.Request.URL.Path),
 			zap.String("ip", c.ClientIP()),
-			zap.String("body", string(body)),
+			zap.String("body", string(bodyBytes)),
 		}
 		c.Logger.WithOptions(zap.Fields(fields...)).Info("Request")
 
