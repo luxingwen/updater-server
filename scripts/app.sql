@@ -18,32 +18,38 @@ CREATE INDEX IF NOT EXISTS idx_hostname ON clients (hostname);
 CREATE INDEX IF NOT EXISTS idx_ip ON clients (ip);
 CREATE INDEX IF NOT EXISTS idx_proxy_id ON clients (proxy_id); -- 为proxy_id字段创建索引
 
--- 创建 Program 表
+
+
+-- 创建 program 表
 CREATE TABLE IF NOT EXISTS program (
-    id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    uuid VARCHAR(255) NOT NULL,
-    exec_user VARCHAR(255),
-    name VARCHAR(255),
+    id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+    uuid VARCHAR(255) NOT NULL UNIQUE,
+    exec_user VARCHAR(255) DEFAULT NULL,
+    name VARCHAR(255) DEFAULT NULL,
     description TEXT,
-    team_id VARCHAR(255),
+    team_id VARCHAR(255) DEFAULT NULL,
+    install_path VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB;
 
 -- 创建 versions 表
 CREATE TABLE IF NOT EXISTS versions (
-    uuid VARCHAR(255) PRIMARY KEY,
+    id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    uuid VARCHAR(255) UNIQUE NOT NULL,
     program_uuid VARCHAR(255) NOT NULL,
     version VARCHAR(255),
     release_note TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (program_uuid) REFERENCES program (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-);
+) ENGINE=InnoDB;
 
 -- 创建 packages 表
 CREATE TABLE IF NOT EXISTS packages (
     id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    uuid VARCHAR(255) UNIQUE NOT NULL,
     version_uuid VARCHAR(255) NOT NULL,
     os VARCHAR(255),
     arch VARCHAR(255),
@@ -53,35 +59,21 @@ CREATE TABLE IF NOT EXISTS packages (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (version_uuid) REFERENCES versions (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-);
+) ENGINE=InnoDB;
 
--- 创建 program_actions 表
-CREATE TABLE IF NOT EXISTS program_actions (
+
+-- 创建 program_action 表
+CREATE TABLE IF NOT EXISTS program_action (
     id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    action_uuid VARCHAR(255) NOT NULL,
+    uuid VARCHAR(255) UNIQUE NOT NULL,
     program_uuid VARCHAR(255) NOT NULL,
-    action_type VARCHAR(255),
+    action_type ENUM('Download', 'Install', 'Start', 'Stop', 'Uninstall', 'Backup', 'Status', 'Version', 'Single', 'Composite'),
+    name VARCHAR(255),
     content TEXT,
     status VARCHAR(255),
+    description TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (program_uuid) REFERENCES programs (uuid) ON DELETE CASCADE ON UPDATE CASCADE
-);
+    FOREIGN KEY (program_uuid) REFERENCES program (uuid) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB;
 
--- 创建 program_action_templates 表
-CREATE TABLE IF NOT EXISTS program_action_templates (
-    id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    template_name VARCHAR(255),
-    status VARCHAR(255),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- 创建 template_actions 表
-CREATE TABLE IF NOT EXISTS template_actions (
-    id INT(11) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    template_action_uuid VARCHAR(255) NOT NULL,
-    action_uuid VARCHAR(255) NOT NULL,
-    sequence INT(11) NOT NULL,
-    FOREIGN KEY (template_action_uuid) REFERENCES program_actions (action_uuid) ON DELETE CASCADE ON UPDATE CASCADE
-);
