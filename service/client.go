@@ -29,6 +29,40 @@ func (s *ClientService) CreateClient(ctx *app.Context, client *model.Client) err
 	return nil
 }
 
+// 获取所有主机
+func (s *ClientService)GetAllClient(ctx *app.Context) ([]model.Client, error) {
+	var clients []model.Client
+	err := ctx.DB.Model(&model.Client{}).Find(&clients).Error
+	if err != nil {
+		return nil, fmt.Errorf("failed to get all client: %w", err)
+	}
+
+	return clients, nil
+}
+
+func (s *ClientService)GetAllClientUuid(ctx *app.Context) ([]string, error) {
+	var clients []model.Client
+	err := ctx.DB.Model(&model.Client{}).Find(&clients).Error
+	if err != nil {
+		return nil, fmt.Errorf("failed to get all client: %w", err)
+	}
+	var uuids []string
+	for _, client := range clients {
+		uuids = append(uuids, client.Uuid)
+	}
+
+	return uuids, nil
+}
+
+
+func (s *ClientService)GetClientByHostInfo(ctx *app.Context, hostinfo model.HostInfo)(r []string, err error){
+	if hostinfo.All{
+		return s.GetAllClientUuid(ctx)
+	}
+	return hostinfo.Clients,nil
+}
+
+
 func (s *ClientService) GetClientByID(ctx *app.Context, id uint) (*model.Client, error) {
 	client := &model.Client{}
 	err := ctx.DB.First(client, id).Error

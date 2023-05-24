@@ -40,3 +40,10 @@ func (pas *ProgramActionService) DeleteProgramAction(ctx *app.Context, uuid stri
 	result := ctx.DB.Delete(&model.ProgramAction{}, "uuid = ?", uuid)
 	return result.Error
 }
+
+
+func (pas *ProgramActionService)GetProgramActionByUUID(ctx *app.Context, uuid string) (*model.ProgramAction, error) {
+	var action model.ProgramAction
+	result := ctx.DB.First(&action, "uuid = ?", uuid)
+	return &action, result.Error
+}

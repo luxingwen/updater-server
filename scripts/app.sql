@@ -77,3 +77,38 @@ CREATE TABLE IF NOT EXISTS program_action (
     FOREIGN KEY (program_uuid) REFERENCES program (uuid) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
+
+CREATE TABLE IF NOT EXISTS tasks (
+    id SERIAL PRIMARY KEY,
+    task_id VARCHAR(255) NOT NULL UNIQUE,
+    task_name VARCHAR(255) NOT NULL,
+    task_type VARCHAR(255) NOT NULL,
+    task_status VARCHAR(255) NOT NULL,
+    parent_task_id VARCHAR(255),
+    content TEXT,
+    description TEXT,
+    creater VARCHAR(255) NOT NULL,
+    team_id VARCHAR(255) NOT NULL,
+    created TIMESTAMP NOT NULL,
+    updated TIMESTAMP NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS task_execution_records (
+    id SERIAL PRIMARY KEY,
+    record_id VARCHAR(255) NOT NULL UNIQUE,
+    task_id VARCHAR(255) NOT NULL,
+    client_uuid VARCHAR(255) NOT NULL,
+    task_type VARCHAR(255) NOT NULL,
+    status VARCHAR(255) NOT NULL,
+    start_time TIMESTAMP NOT NULL,
+    end_time TIMESTAMP NOT NULL,
+    stdout TEXT,
+    stderr TEXT,
+    message TEXT,
+    script_exit_code INTEGER,
+    code VARCHAR(255),
+    content TEXT,
+    timeout INTERVAL,
+    parent_record_id VARCHAR(255)
+);
+

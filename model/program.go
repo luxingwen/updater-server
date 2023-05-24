@@ -4,6 +4,7 @@ import (
 	"time"
 	"github.com/google/uuid"
 
+	"sort"
 )
 
 // Program 是程序结构体
@@ -57,7 +58,7 @@ type ProgramAction struct {
 	Uuid        string     `json:"uuid" gorm:"primaryKey"`
 	ProgramUUID string    `json:"programUUID" gorm:"index"`
 	Name        string    `json:"name"`
-	ActionType  string    `json:"actionType"`
+	ActionType  ActionType    `json:"actionType"`
 	Content     string    `json:"content"`
 	Status      string    `json:"status"`
 	Description string `json:"description""`
@@ -73,8 +74,39 @@ func (ProgramAction)TableName()string{
 type TemplateAction struct {
 	ProgramActionUuid string `json:"programActionUuid"`
 	Sequence int `json:"sequence"`
+	Uuid string `json:"uuid"`
+	NextUuid string `json:"nextUuid"`
 }
 
+
+
+func GenerateTemplateActionNextUuids(actions []*TemplateAction) {
+
+	for i := 0; i < len(actions); i++ {
+		actions[i].Uuid = uuid.New().String()
+	}
+
+
+	// 按照 Sequence 进行排序
+	sort.Slice(actions, func(i, j int) bool {
+		return actions[i].Sequence < actions[j].Sequence
+	})
+
+
+	for i := 0; i < len(actions); i++ {
+		if i == len(actions)-1 {
+			actions[i].NextUuid = ""
+		} else {
+			actions[i].NextUuid = actions[i+1].Uuid
+		}
+	}
+}
+
+
+type TemplateActionDetail struct {
+	TemplateAction
+	ProgramAction
+}
 
 // ProgramActionRecord 是程序操作动作记录结构体
 type ProgramActionRecord struct {

@@ -4,6 +4,7 @@ import "time"
 
 type Client struct {
 	ID       uint      `gorm:"primaryKey" json:"id"`
+	Uuid string   `gorm:"column:uuid" json:"uuid"`
 	VMUUID   string    `gorm:"column:vmuuid" json:"vmuuid"`
 	SN       string    `gorm:"column:sn" json:"sn"`
 	Hostname string    `gorm:"column:hostname" json:"hostname"`

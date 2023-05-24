@@ -7,10 +7,17 @@ import (
 	"updater-server/pkg/app"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/google/uuid"
+	"encoding/json"
+
 )
 
 type ProgramActionController struct {
 	Service *service.ProgramActionService
+	ClientService *service.ClientService
+	TaskService *service.TaskService
+	TaskExecutionRecordService *service.TaskExecutionRecordService
 }
 
 func (pac *ProgramActionController) GetAllProgramActions(c *app.Context) {
@@ -65,4 +72,145 @@ func (pac *ProgramActionController) DeleteProgramAction(c *app.Context) {
 		return
 	}
 	c.JSONSuccess(gin.H{"message": "Program Action deleted successfully"})
+}
+
+func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
+	var actionTask *model.ReqTaskProgramAction
+	if err := c.ShouldBindJSON(&actionTask); err != nil {
+		c.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	clients, err := pac.ClientService.GetClientByHostInfo(c, actionTask.HostInfo)
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+	if len(clients) == 0 {
+		c.JSONError(http.StatusInternalServerError, "no client found")
+		return
+	}
+
+	action, err := pac.Service.GetProgramActionByUUID(c, actionTask.Content.ProgramActionUuid)
+	if err != nil {
+		return
+	}
+
+	content, err := json.Marshal(actionTask.Content)
+	if err != nil {
+		return
+	}
+
+	task := &model.Task{
+		TaskID:      uuid.New().String(),
+		TaskName:    actionTask.Name,
+		Description: actionTask.Description,
+		Creater:     actionTask.Creater,
+		TaskType:    string(action.ActionType),
+		Content:     string(content),
+	}
+
+	err = pac.TaskService.CreateTask(c, task)
+	if err != nil {
+		return
+	}
+
+	if actionTask.BatchTask.IsBatchTask() {
+		taskBatchesInfoList := actionTask.BatchTask.GenerateTaskBatchesInfo(clients)
+
+		for _, taskBatchInfo := range taskBatchesInfoList {
+			bsContent, err := json.Marshal(taskBatchInfo)
+			if err != nil {
+				return
+			}
+
+			batchesTask := &model.Task{
+				TaskID:     taskBatchInfo.TaskID,
+				TaskType:   "batches",
+				NextTaskID: taskBatchInfo.NextTaskID,
+				Content:    string(bsContent),
+			}
+
+			err = pac.TaskService.CreateTask(c, batchesTask)
+			if err != nil {
+				return
+			}
+
+			for _, client := range taskBatchInfo.Clients {
+				err = pac.createTaskExecutionRecord(c, taskBatchInfo.TaskID, client, action.Content, action.ActionType)
+				if err != nil {
+					return
+				}
+
+				if action.ActionType == model.ActionTypeComposite {
+					err = pac.createSubTaskExecutionRecords(c, task, client, taskBatchInfo.TaskID, action)
+					if err != nil {
+						return
+					}
+				}
+			}
+		}
+	} else {
+		for _, client := range clients {
+			err = pac.createTaskExecutionRecord(c, task.TaskID, client, action.Content, action.ActionType)
+			if err != nil {
+				return
+			}
+
+			if action.ActionType == model.ActionTypeComposite {
+				err = pac.createSubTaskExecutionRecords(c, task, client, "", action)
+				if err != nil {
+					return
+				}
+			}
+		}
+	}
+}
+
+func (pac *ProgramActionController) createTaskExecutionRecord(c *app.Context, taskID string, client string, content string, taskType model.ActionType) error {
+	taskExecutionRecord := &model.TaskExecutionRecord{
+		RecordID:    uuid.New().String(),
+		TaskID:      taskID,
+		ClientUUID:  client,
+		Content:     content,
+		TaskType:    string(taskType),
+	}
+
+	err := pac.TaskExecutionRecordService.CreateRecord(c, taskExecutionRecord)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (pac *ProgramActionController) createSubTaskExecutionRecords(c *app.Context, task *model.Task, client string, parentRecordID string, action *model.ProgramAction) error {
+	actionTemplates := make([]*model.TemplateAction, 0)
+	err := json.Unmarshal([]byte(action.Content), &actionTemplates)
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return err
+	}
+
+	for _, actionTemplate := range actionTemplates {
+		subAction, err := pac.Service.GetProgramActionByUUID(c, actionTemplate.ProgramActionUuid)
+		if err != nil {
+			return err
+		}
+
+		subTaskExecutionRecord := &model.TaskExecutionRecord{
+			RecordID:       actionTemplate.Uuid,
+			TaskID:         task.TaskID,
+			ClientUUID:     client,
+			Content:        subAction.Content,
+			ParentRecordID: parentRecordID,
+		}
+
+		err = pac.TaskExecutionRecordService.CreateRecord(c, subTaskExecutionRecord)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -33,3 +33,10 @@ type ReqVersionQuery struct {
 type ReqPackageQuery struct {
 	VersionUuid string `json:"versionUuid"`
 }
+
+type ReqTaskQuery struct {
+	Pagination
+	TaskName string `json:"taskName"`
+	TeamId string `json:"teamId"`
+	Creater string `json:"creater"`
+}
