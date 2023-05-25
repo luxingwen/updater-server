@@ -1,9 +1,10 @@
 package service
 
 import (
-	"github.com/google/uuid"
 	"updater-server/model"
 	"updater-server/pkg/app"
+
+	"github.com/google/uuid"
 )
 
 type ProgramActionService struct{}
@@ -41,8 +42,7 @@ func (pas *ProgramActionService) DeleteProgramAction(ctx *app.Context, uuid stri
 	return result.Error
 }
 
-
-func (pas *ProgramActionService)GetProgramActionByUUID(ctx *app.Context, uuid string) (*model.ProgramAction, error) {
+func (pas *ProgramActionService) GetProgramActionByUUID(ctx *app.Context, uuid string) (*model.ProgramAction, error) {
 	var action model.ProgramAction
 	result := ctx.DB.First(&action, "uuid = ?", uuid)
 	return &action, result.Error

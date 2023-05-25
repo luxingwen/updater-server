@@ -1,20 +1,31 @@
 package service
 
-
 import (
-	"github.com/google/uuid"
 	"updater-server/model"
 	"updater-server/pkg/app"
+
+	"github.com/google/uuid"
 )
 
-type VersionService struct {}
+type VersionService struct{}
 
 func (vs *VersionService) GetAllVersions(ctx *app.Context, query *model.ReqVersionQuery) (*model.PagedResponse, error) {
 	// Implementation goes here...
-	return nil, nil
+
+	var versions []model.Version
+	result := ctx.DB.Model(&model.Version{}).Where("program_uuid = ?", query.ProgramUuid).Find(&versions)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	response := &model.PagedResponse{
+		Data:     versions,
+		Current:  query.Current,
+		PageSize: query.PageSize,
+		Total:    0,
+	}
+	return response, nil
 }
-
-
 
 func (vs *VersionService) CreateVersion(ctx *app.Context, version *model.Version) error {
 	// Implementation goes here...

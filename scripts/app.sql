@@ -78,20 +78,24 @@ CREATE TABLE IF NOT EXISTS program_action (
 ) ENGINE=InnoDB;
 
 
+
+
 CREATE TABLE IF NOT EXISTS tasks (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     task_id VARCHAR(255) NOT NULL UNIQUE,
-    task_name VARCHAR(255) NOT NULL,
-    task_type VARCHAR(255) NOT NULL,
-    task_status VARCHAR(255) NOT NULL,
+    task_name VARCHAR(255),
+    task_type VARCHAR(255),
+    task_status VARCHAR(255),
     parent_task_id VARCHAR(255),
-    content TEXT,
-    description TEXT,
-    creater VARCHAR(255) NOT NULL,
-    team_id VARCHAR(255) NOT NULL,
-    created TIMESTAMP NOT NULL,
-    updated TIMESTAMP NOT NULL
-);
+    content VARCHAR(255),
+    description VARCHAR(255),
+    creater VARCHAR(255),
+    team_id VARCHAR(255),
+    next_task_id VARCHAR(255),
+   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)ENGINE=InnoDB;
+
 
 CREATE TABLE IF NOT EXISTS task_execution_records (
     id SERIAL PRIMARY KEY,
@@ -108,7 +112,10 @@ CREATE TABLE IF NOT EXISTS task_execution_records (
     script_exit_code INTEGER,
     code VARCHAR(255),
     content TEXT,
-    timeout INTERVAL,
-    parent_record_id VARCHAR(255)
-);
+    timeout INT(11),
+    parent_record_id VARCHAR(255),
+    next_record_id VARCHAR(255),
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)ENGINE=InnoDB;
 

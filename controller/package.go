@@ -38,6 +38,7 @@ func (pc *PackageController) GetAllPackages(c *app.Context) {
 }
 
 // CreatePackage creates a new package.
+// @Summary Create a new package
 // @Tags Packages
 // @Produce json
 // @Param Package body model.Package true "Package data"

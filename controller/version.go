@@ -25,7 +25,7 @@ func (vc *VersionController) GetAllVersions(c *app.Context) {
 	// Implementation goes here...
 
 	var query model.ReqVersionQuery
-	if err := c.ShouldBindQuery(&query); err != nil {
+	if err := c.ShouldBindJSON(&query); err != nil {
 		c.JSONError(http.StatusBadRequest, err.Error())
 		return
 	}

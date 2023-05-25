@@ -29,7 +29,7 @@ type ProgramController struct {
 // @Router /api/v1/program/list [post]
 func (pc *ProgramController) GetAllPrograms(c *app.Context) {
 	var query model.ReqProgrameQuery
-	if err := c.ShouldBindQuery(&query); err != nil {
+	if err := c.ShouldBindJSON(&query); err != nil {
 		c.JSONError(http.StatusBadRequest, err.Error())
 		return
 	}
@@ -42,6 +42,7 @@ func (pc *ProgramController) GetAllPrograms(c *app.Context) {
 
 	c.JSONSuccess(response)
 }
+
 // @Summary Delete program
 // @Description Delete program by UUID
 // @Tags program
@@ -103,4 +104,20 @@ func (pc *ProgramController) UpdateProgram(c *app.Context) {
 	}
 
 	c.JSONSuccess(updatedProgram)
+}
+
+func (pc *ProgramController) GetProgramDetail(c *app.Context) {
+	var query model.ReqProgrameQuery
+	if err := c.ShouldBindJSON(&query); err != nil {
+		c.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	response, err := pc.Service.GetProgram(c, query.Uuid)
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSONSuccess(response)
 }

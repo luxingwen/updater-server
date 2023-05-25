@@ -1,15 +1,13 @@
 package service
 
 import (
-	"gorm.io/gorm"
 	"updater-server/model"
 	"updater-server/pkg/app"
 
+	"gorm.io/gorm"
 )
 
-type ProgramService struct {}
-
-
+type ProgramService struct{}
 
 func (ps *ProgramService) CreateProgram(ctx *app.Context, program *model.Program) error {
 	tx := ctx.DB.Begin() // 开始事务
@@ -35,19 +33,16 @@ func (ps *ProgramService) CreateProgram(ctx *app.Context, program *model.Program
 	return nil
 }
 
-
 func (ps *ProgramService) UpdateProgram(ctx *app.Context, updatedProgram *model.Program) error {
 	result := ctx.DB.Model(&model.Program{}).Where("uuid = ?", updatedProgram.Uuid).Updates(updatedProgram)
 	return result.Error
 }
-
 
 func (ps *ProgramService) DeleteProgram(ctx *app.Context, uuid string) error {
 	var program model.Program
 	result := ctx.DB.Where("uuid = ?", uuid).Delete(&program)
 	return result.Error
 }
-
 
 func (ps *ProgramService) GetAllPrograms(ctx *app.Context, query *model.ReqProgrameQuery) (*model.PagedResponse, error) {
 
@@ -81,4 +76,13 @@ func (ps *ProgramService) GetAllPrograms(ctx *app.Context, query *model.ReqProgr
 	}
 
 	return response, nil
+}
+
+func (ps *ProgramService) GetProgram(ctx *app.Context, uuid string) (*model.Program, error) {
+	var program model.Program
+	result := ctx.DB.Where("uuid = ?", uuid).First(&program)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &program, nil
 }

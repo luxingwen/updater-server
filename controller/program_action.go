@@ -3,26 +3,34 @@ package controller
 import (
 	"net/http"
 	"updater-server/model"
-	"updater-server/service"
 	"updater-server/pkg/app"
+	"updater-server/service"
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/google/uuid"
 	"encoding/json"
 
+	"github.com/google/uuid"
 )
 
 type ProgramActionController struct {
-	Service *service.ProgramActionService
-	ClientService *service.ClientService
-	TaskService *service.TaskService
+	Service                    *service.ProgramActionService
+	ClientService              *service.ClientService
+	TaskService                *service.TaskService
 	TaskExecutionRecordService *service.TaskExecutionRecordService
 }
 
 func (pac *ProgramActionController) GetAllProgramActions(c *app.Context) {
-	programUUID := c.Param("programUUID")
-	actions, err := pac.Service.GetAllProgramActions(c, programUUID)
+	var query model.ReqProgramActionQuery
+
+	err := c.ShouldBindJSON(&query)
+	if err != nil {
+		c.JSONError(http.StatusBadRequest, err.Error())
+
+		return
+	}
+
+	actions, err := pac.Service.GetAllProgramActions(c, query.ProgramUuid)
 	if err != nil {
 		c.JSONError(http.StatusInternalServerError, err.Error())
 		return
@@ -169,11 +177,11 @@ func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 
 func (pac *ProgramActionController) createTaskExecutionRecord(c *app.Context, taskID string, client string, content string, taskType model.ActionType) error {
 	taskExecutionRecord := &model.TaskExecutionRecord{
-		RecordID:    uuid.New().String(),
-		TaskID:      taskID,
-		ClientUUID:  client,
-		Content:     content,
-		TaskType:    string(taskType),
+		RecordID:   uuid.New().String(),
+		TaskID:     taskID,
+		ClientUUID: client,
+		Content:    content,
+		TaskType:   string(taskType),
 	}
 
 	err := pac.TaskExecutionRecordService.CreateRecord(c, taskExecutionRecord)

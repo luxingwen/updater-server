@@ -30,7 +30,7 @@ func (s *ClientService) CreateClient(ctx *app.Context, client *model.Client) err
 }
 
 // 获取所有主机
-func (s *ClientService)GetAllClient(ctx *app.Context) ([]model.Client, error) {
+func (s *ClientService) GetAllClient(ctx *app.Context) ([]model.Client, error) {
 	var clients []model.Client
 	err := ctx.DB.Model(&model.Client{}).Find(&clients).Error
 	if err != nil {
@@ -40,7 +40,7 @@ func (s *ClientService)GetAllClient(ctx *app.Context) ([]model.Client, error) {
 	return clients, nil
 }
 
-func (s *ClientService)GetAllClientUuid(ctx *app.Context) ([]string, error) {
+func (s *ClientService) GetAllClientUuid(ctx *app.Context) ([]string, error) {
 	var clients []model.Client
 	err := ctx.DB.Model(&model.Client{}).Find(&clients).Error
 	if err != nil {
@@ -54,14 +54,12 @@ func (s *ClientService)GetAllClientUuid(ctx *app.Context) ([]string, error) {
 	return uuids, nil
 }
 
-
-func (s *ClientService)GetClientByHostInfo(ctx *app.Context, hostinfo model.HostInfo)(r []string, err error){
-	if hostinfo.All{
+func (s *ClientService) GetClientByHostInfo(ctx *app.Context, hostinfo model.HostInfo) (r []string, err error) {
+	if hostinfo.All {
 		return s.GetAllClientUuid(ctx)
 	}
-	return hostinfo.Clients,nil
+	return hostinfo.Clients, nil
 }
-
 
 func (s *ClientService) GetClientByID(ctx *app.Context, id uint) (*model.Client, error) {
 	client := &model.Client{}
@@ -122,4 +120,47 @@ func (s *ClientService) FindClientByCriteria(ctx *app.Context, vmuuid, sn, hostn
 	}
 
 	return client, nil
+}
+
+func (s *ClientService) QueryClient(ctx *app.Context, query *model.ReqClientQuery) (r *model.PagedResponse, err error) {
+	var clients []model.Client
+	var total int64
+
+	// Create a new session
+	sess := ctx.DB.Session(&gorm.Session{})
+
+	if query.Uuid != "" {
+		sess = sess.Where("uuid = ?", query.Uuid)
+	}
+	if query.Vmuuid != "" {
+		sess = sess.Where("vmuuid = ?", query.Vmuuid)
+	}
+	if query.Hostname != "" {
+		sess = sess.Where("hostname = ?", query.Hostname)
+	}
+	if query.Ip != "" {
+		sess = sess.Where("ip = ?", query.Ip)
+	}
+	if query.Sn != "" {
+		sess = sess.Where("sn = ?", query.Sn)
+	}
+
+	result := sess.Limit(query.PageSize).Offset(query.GetOffset()).Find(&clients)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	result = sess.Model(&model.Client{}).Count(&total)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	response := &model.PagedResponse{
+		Data:     clients,
+		Current:  query.Current,
+		PageSize: query.PageSize,
+		Total:    total,
+	}
+
+	return response, nil
 }
