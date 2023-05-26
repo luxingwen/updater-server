@@ -54,6 +54,7 @@ func main() {
 		v1.POST("/program/version/update", versionController.UpdateVersion)
 		v1.POST("/program/version/create", versionController.CreateVersion)
 		v1.POST("/program/version/delete", versionController.DeleteVersion)
+		v1.POST("/program/version/detail", versionController.GetVersionByUUID)
 	}
 
 	packageController := &controller.PackageController{Service: &service.PackageService{}}

@@ -47,3 +47,9 @@ func (vs *VersionService) DeleteVersion(ctx *app.Context, uuid string) error {
 	result := ctx.DB.Delete(&model.Version{}, "uuid = ?", uuid)
 	return result.Error
 }
+
+func (vs *VersionService) GetVersionInfo(ctx *app.Context, uuid string) (*model.Version, error) {
+	var version model.Version
+	result := ctx.DB.First(&version, "uuid = ?", uuid)
+	return &version, result.Error
+}

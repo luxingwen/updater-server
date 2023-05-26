@@ -51,8 +51,14 @@ func (pc *ProgramController) GetAllPrograms(c *app.Context) {
 // @Param uuid path string true "UUID of the program to delete"
 // @Router /api/v1/program/delete [post]
 func (pc *ProgramController) DeleteProgram(c *app.Context) {
-	uuid := c.Param("uuid")
-	err := pc.Service.DeleteProgram(c, uuid)
+
+	var query model.ReqProgrameQuery
+	if err := c.ShouldBindJSON(&query); err != nil {
+		c.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	err := pc.Service.DeleteProgram(c, query.Uuid)
 	if err != nil {
 		c.JSONError(http.StatusInternalServerError, err.Error())
 		return

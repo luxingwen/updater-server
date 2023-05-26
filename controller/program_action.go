@@ -101,11 +101,13 @@ func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 
 	action, err := pac.Service.GetProgramActionByUUID(c, actionTask.Content.ProgramActionUuid)
 	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	content, err := json.Marshal(actionTask.Content)
 	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -120,6 +122,7 @@ func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 
 	err = pac.TaskService.CreateTask(c, task)
 	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -129,6 +132,7 @@ func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 		for _, taskBatchInfo := range taskBatchesInfoList {
 			bsContent, err := json.Marshal(taskBatchInfo)
 			if err != nil {
+				c.JSONError(http.StatusInternalServerError, err.Error())
 				return
 			}
 
@@ -141,18 +145,21 @@ func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 
 			err = pac.TaskService.CreateTask(c, batchesTask)
 			if err != nil {
+				c.JSONError(http.StatusInternalServerError, err.Error())
 				return
 			}
 
 			for _, client := range taskBatchInfo.Clients {
 				err = pac.createTaskExecutionRecord(c, taskBatchInfo.TaskID, client, action.Content, action.ActionType)
 				if err != nil {
+					c.JSONError(http.StatusInternalServerError, err.Error())
 					return
 				}
 
 				if action.ActionType == model.ActionTypeComposite {
 					err = pac.createSubTaskExecutionRecords(c, task, client, taskBatchInfo.TaskID, action)
 					if err != nil {
+						c.JSONError(http.StatusInternalServerError, err.Error())
 						return
 					}
 				}
@@ -162,17 +169,21 @@ func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 		for _, client := range clients {
 			err = pac.createTaskExecutionRecord(c, task.TaskID, client, action.Content, action.ActionType)
 			if err != nil {
+				c.JSONError(http.StatusInternalServerError, err.Error())
 				return
 			}
 
 			if action.ActionType == model.ActionTypeComposite {
 				err = pac.createSubTaskExecutionRecords(c, task, client, "", action)
 				if err != nil {
+					c.JSONError(http.StatusInternalServerError, err.Error())
 					return
 				}
 			}
 		}
 	}
+
+	c.JSONSuccess(task)
 }
 
 func (pac *ProgramActionController) createTaskExecutionRecord(c *app.Context, taskID string, client string, content string, taskType model.ActionType) error {

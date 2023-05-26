@@ -48,6 +48,21 @@ func (vc *VersionController) GetAllVersions(c *app.Context) {
 // @router /v1/version/get/{uuid} [post]
 func (vc *VersionController) GetVersionByUUID(c *app.Context) {
 	// Implementation goes here...
+
+	var query model.Version
+
+	err := c.ShouldBindJSON(&query)
+	if err != nil {
+		c.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	response, err := vc.Service.GetVersionInfo(c, query.Uuid)
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSONSuccess(response)
 }
 
 // @summary Create version
@@ -109,9 +124,14 @@ func (vc *VersionController) UpdateVersion(c *app.Context) {
 // @param uuid path string true "UUID of the version to delete"
 // @router /v1/version/delete/{uuid} [post]
 func (vc *VersionController) DeleteVersion(c *app.Context) {
-	// Implementation goes here...
-	uuid := c.Param("uuid")
-	err := vc.Service.DeleteVersion(c, uuid)
+	var query model.Version
+
+	err := c.ShouldBindJSON(&query)
+	if err != nil {
+		c.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+	err = vc.Service.DeleteVersion(c, query.Uuid)
 	if err != nil {
 		c.JSONError(http.StatusInternalServerError, err.Error())
 		return

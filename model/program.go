@@ -2,6 +2,7 @@ package model
 
 import (
 	"time"
+
 	"github.com/google/uuid"
 
 	"sort"
@@ -15,7 +16,7 @@ type Program struct {
 	Name        string          `json:"name" gorm:"column:name"`
 	Description string          `json:"description" gorm:"column:description"`
 	TeamID      string          `json:"teamID" gorm:"column:team_id"`
-	InstallPath string          `json:"installPath" gorm:"install_path"`// 安装路径
+	InstallPath string          `json:"installPath" gorm:"install_path"` // 安装路径
 	Actions     []ProgramAction `json:"actions" gorm:"foreignKey:ProgramUUID"`
 	CreatedAt   time.Time       `json:"createdAt"`
 	UpdatedAt   time.Time       `json:"updatedAt"`
@@ -27,9 +28,9 @@ func (Program) TableName() string {
 }
 
 type Version struct {
-	ID           uint      `gorm:"primaryKey"`
+	ID          uint      `gorm:"primaryKey"`
 	Uuid        string    `json:"uuid" gorm:"column:uuid"`
-	ProgramUuid   string    `json:"programUuid"`
+	ProgramUuid string    `json:"programUuid"`
 	Version     string    `json:"version"`
 	ReleaseNote string    `json:"releaseNote"`
 	CreatedAt   time.Time `json:"createdAt"`
@@ -37,10 +38,9 @@ type Version struct {
 	Packages    []Package `json:"packages" gorm:"foreignKey:VersionUuid"`
 }
 
-
 type Package struct {
 	ID           uint      `gorm:"primaryKey"`
-	Uuid		 string    `json:"uuid" gorm:"primaryKey"`
+	Uuid         string    `json:"uuid" gorm:"primaryKey"`
 	VersionUuid  string    `json:"versionUuid" gorm:"index"`
 	Os           string    `json:"os"`
 	Arch         string    `json:"arch"`
@@ -51,34 +51,30 @@ type Package struct {
 	UpdatedAt    time.Time `json:"updatedAt"`
 }
 
-
 // 程序动作
 type ProgramAction struct {
-	ID          uint      `gorm:"primaryKey"`
+	ID          uint       `gorm:"primaryKey"`
 	Uuid        string     `json:"uuid" gorm:"primaryKey"`
-	ProgramUUID string    `json:"programUUID" gorm:"index"`
-	Name        string    `json:"name"`
-	ActionType  ActionType    `json:"actionType"`
-	Content     string    `json:"content"`
-	Status      string    `json:"status"`
-	Description string `json:"description""`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	ProgramUUID string     `json:"programUUID" gorm:"index"`
+	Name        string     `json:"name"`
+	ActionType  ActionType `json:"actionType"`
+	Content     string     `json:"content"`
+	Status      string     `json:"status"`
+	Description string     `json:"description""`
+	CreatedAt   time.Time  `json:"createdAt"`
+	UpdatedAt   time.Time  `json:"updatedAt"`
 }
 
-func (ProgramAction)TableName()string{
+func (ProgramAction) TableName() string {
 	return "program_action"
 }
 
-
 type TemplateAction struct {
 	ProgramActionUuid string `json:"programActionUuid"`
-	Sequence int `json:"sequence"`
-	Uuid string `json:"uuid"`
-	NextUuid string `json:"nextUuid"`
+	Sequence          int    `json:"sequence"`
+	Uuid              string `json:"uuid"`
+	NextUuid          string `json:"nextUuid"`
 }
-
-
 
 func GenerateTemplateActionNextUuids(actions []*TemplateAction) {
 
@@ -86,12 +82,10 @@ func GenerateTemplateActionNextUuids(actions []*TemplateAction) {
 		actions[i].Uuid = uuid.New().String()
 	}
 
-
 	// 按照 Sequence 进行排序
 	sort.Slice(actions, func(i, j int) bool {
 		return actions[i].Sequence < actions[j].Sequence
 	})
-
 
 	for i := 0; i < len(actions); i++ {
 		if i == len(actions)-1 {
@@ -101,7 +95,6 @@ func GenerateTemplateActionNextUuids(actions []*TemplateAction) {
 		}
 	}
 }
-
 
 type TemplateActionDetail struct {
 	TemplateAction
@@ -117,13 +110,11 @@ type ProgramActionRecord struct {
 	Client    Client    `gorm:"foreignKey:ClientID"`
 }
 
-
 // 脚本执行内容
 type ActionContent struct {
 	OS      string `json:"os"`
 	Content string `json:"content"`
 }
-
 
 type ActionType string
 
@@ -140,12 +131,11 @@ const (
 	ActionTypeComposite ActionType = "Composite"
 )
 
-
 var InitialActions = []ProgramAction{
 	{
-		Uuid:        uuid.New().String(),
-		Name:        "下载",
-		ActionType:  "Download",
+		Uuid:       uuid.New().String(),
+		Name:       "下载",
+		ActionType: "Download",
 		Content: `[{"os": "linux", "content": "Linux 下载内容"}, 
 		           {"os": "windows", "content": "Windows 下载内容"}]`,
 		Status:      "待处理",
@@ -154,9 +144,9 @@ var InitialActions = []ProgramAction{
 		UpdatedAt:   time.Now(),
 	},
 	{
-		Uuid:        uuid.New().String(),
-		Name:        "安装",
-		ActionType:  "Install",
+		Uuid:       uuid.New().String(),
+		Name:       "安装",
+		ActionType: "Install",
 		Content: `[{"os": "linux", "content": "Linux 安装内容"}, 
 		          {"os": "windows", "content": "Windows 安装内容"}]`,
 		Status:      "待处理",
@@ -165,9 +155,9 @@ var InitialActions = []ProgramAction{
 		UpdatedAt:   time.Now(),
 	},
 	{
-		Uuid:        uuid.New().String(),
-		Name:        "启动",
-		ActionType:  "Start",
+		Uuid:       uuid.New().String(),
+		Name:       "启动",
+		ActionType: "Start",
 		Content: `[{"os": "linux", "content": "Linux 启动内容"}, 
 		          {"os": "windows", "content": "Windows 启动内容"}]`,
 		Status:      "待处理",
@@ -176,9 +166,9 @@ var InitialActions = []ProgramAction{
 		UpdatedAt:   time.Now(),
 	},
 	{
-		Uuid:        uuid.New().String(),
-		Name:        "停止",
-		ActionType:  "Stop",
+		Uuid:       uuid.New().String(),
+		Name:       "停止",
+		ActionType: "Stop",
 		Content: `[{"os": "linux", "content": "Linux 停止内容"}, 
 		          {"os": "windows", "content": "Windows 停止内容"}]`,
 		Status:      "待处理",
@@ -187,9 +177,9 @@ var InitialActions = []ProgramAction{
 		UpdatedAt:   time.Now(),
 	},
 	{
-		Uuid:        uuid.New().String(),
-		Name:        "卸载",
-		ActionType:  "Uninstall",
+		Uuid:       uuid.New().String(),
+		Name:       "卸载",
+		ActionType: "Uninstall",
 		Content: `[{"os": "linux", "content": "Linux 卸载内容"}, 
 		          {"os": "windows", "content": "Windows 卸载内容"}]`,
 		Status:      "待处理",
@@ -198,9 +188,9 @@ var InitialActions = []ProgramAction{
 		UpdatedAt:   time.Now(),
 	},
 	{
-		Uuid:        uuid.New().String(),
-		Name:        "备份",
-		ActionType:  "Backup",
+		Uuid:       uuid.New().String(),
+		Name:       "备份",
+		ActionType: "Backup",
 		Content: `[{"os": "linux", "content": "Linux 备份内容"}, 
 		          {"os": "windows", "content": "Windows 备份内容"}]`,
 		Status:      "待处理",
@@ -209,9 +199,9 @@ var InitialActions = []ProgramAction{
 		UpdatedAt:   time.Now(),
 	},
 	{
-		Uuid:        uuid.New().String(),
-		Name:        "状态",
-		ActionType:  "Status",
+		Uuid:       uuid.New().String(),
+		Name:       "状态",
+		ActionType: "Status",
 		Content: `[{"os": "linux", "content": "Linux 状态内容"}, 
 		          {"os": "windows", "content": "Windows 状态内容"}]`,
 		Status:      "待处理",
@@ -220,9 +210,9 @@ var InitialActions = []ProgramAction{
 		UpdatedAt:   time.Now(),
 	},
 	{
-		Uuid:        uuid.New().String(),
-		Name:        "版本",
-		ActionType:  "Version",
+		Uuid:       uuid.New().String(),
+		Name:       "版本",
+		ActionType: "Version",
 		Content: `[{"os": "linux", "content": "Linux 版本内容"}, 
 		          {"os": "windows", "content": "Windows 版本内容"}]`,
 		Status:      "待处理",
@@ -231,9 +221,9 @@ var InitialActions = []ProgramAction{
 		UpdatedAt:   time.Now(),
 	},
 	{
-		Uuid:        uuid.New().String(),
-		Name:        "单一",
-		ActionType:  "Single",
+		Uuid:       uuid.New().String(),
+		Name:       "单一",
+		ActionType: "Single",
 		Content: `[{"os": "linux", "content": "Linux 单一内容"}, 
 		          {"os": "windows", "content": "Windows 单一内容"}]`,
 		Status:      "待处理",
@@ -242,9 +232,9 @@ var InitialActions = []ProgramAction{
 		UpdatedAt:   time.Now(),
 	},
 	{
-		Uuid:        uuid.New().String(),
-		Name:        "组合",
-		ActionType:  "Composite",
+		Uuid:       uuid.New().String(),
+		Name:       "组合",
+		ActionType: "Composite",
 		Content: `[{"os": "linux", "content": "Linux 组合内容"}, 
 		          {"os": "windows", "content": "Windows 组合内容"}]`,
 		Status:      "待处理",

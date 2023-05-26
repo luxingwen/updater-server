@@ -7,6 +7,7 @@ import (
 	"updater-server/service"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // PackageController is the controller for managing packages.
@@ -23,7 +24,7 @@ type PackageController struct {
 // @Router /v1/packages/list [post]
 func (pc *PackageController) GetAllPackages(c *app.Context) {
 	var query model.ReqPackageQuery
-	if err := c.ShouldBindQuery(&query); err != nil {
+	if err := c.ShouldBindJSON(&query); err != nil {
 		c.JSONError(http.StatusBadRequest, err.Error())
 		return
 	}
@@ -50,6 +51,7 @@ func (pc *PackageController) CreatePackage(c *app.Context) {
 		return
 	}
 
+	mpackage.Uuid = uuid.New().String()
 	err := pc.Service.CreatePackage(c, &mpackage)
 	if err != nil {
 		c.JSONError(http.StatusInternalServerError, err.Error())
