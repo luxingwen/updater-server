@@ -10,17 +10,18 @@ import (
 
 // Program 是程序结构体
 type Program struct {
-	ID          uint            `gorm:"primaryKey"`
-	Uuid        string          `json:"uuid" gorm:"column:uuid"`
-	ExecUser    string          `json:"execUser" gorm:"column:exec_user"`
-	Name        string          `json:"name" gorm:"column:name"`
-	Description string          `json:"description" gorm:"column:description"`
-	TeamID      string          `json:"teamID" gorm:"column:team_id"`
-	InstallPath string          `json:"installPath" gorm:"install_path"` // 安装路径
-	Actions     []ProgramAction `json:"actions" gorm:"foreignKey:ProgramUUID"`
-	CreatedAt   time.Time       `json:"createdAt"`
-	UpdatedAt   time.Time       `json:"updatedAt"`
-	Versions    []Version       `json:"versions" gorm:"foreignKey:ProgramUuid"`
+	ID                 uint            `gorm:"primaryKey"`
+	Uuid               string          `json:"uuid" gorm:"column:uuid"`
+	ExecUser           string          `json:"execUser" gorm:"column:exec_user"`
+	Name               string          `json:"name" gorm:"column:name"`
+	Description        string          `json:"description" gorm:"column:description"`
+	TeamID             string          `json:"teamID" gorm:"column:team_id"`
+	WindowsInstallPath string          `json:"windowsInstallPath" gorm:"windows_install_path"` // 安装路径
+	LinuxInstallPath   string          `json:"linuxInstallPath" gorm:"linux_install_path"`     // 安装路径
+	Actions            []ProgramAction `json:"actions" gorm:"foreignKey:ProgramUUID"`
+	CreatedAt          time.Time       `json:"createdAt"`
+	UpdatedAt          time.Time       `json:"updatedAt"`
+	Versions           []Version       `json:"versions" gorm:"foreignKey:ProgramUuid"`
 }
 
 func (Program) TableName() string {

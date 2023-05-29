@@ -1,3 +1,6 @@
+cmd/app.log
+cmd/cmd
+cmd/public
 vendor
 *.exe
 bin/*

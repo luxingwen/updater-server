@@ -21,17 +21,19 @@ CREATE INDEX IF NOT EXISTS idx_proxy_id ON clients (proxy_id); -- 为proxy_id字
 
 
 -- 创建 program 表
-CREATE TABLE IF NOT EXISTS program (
-    id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
-    uuid VARCHAR(255) NOT NULL UNIQUE,
-    exec_user VARCHAR(255) DEFAULT NULL,
-    name VARCHAR(255) DEFAULT NULL,
-    description TEXT,
-    team_id VARCHAR(255) DEFAULT NULL,
-    install_path VARCHAR(255) DEFAULT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id)
+CREATE TABLE `program` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `uuid` varchar(255) NOT NULL,
+  `exec_user` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `description` text,
+  `team_id` varchar(255) DEFAULT NULL,
+  `windows_install_path` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL,
+  `updated_at` timestamp NOT NULL,
+  `linux_install_path` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
 
 -- 创建 versions 表

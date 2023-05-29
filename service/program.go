@@ -4,6 +4,7 @@ import (
 	"updater-server/model"
 	"updater-server/pkg/app"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -22,6 +23,7 @@ func (ps *ProgramService) CreateProgram(ctx *app.Context, program *model.Program
 	// 创建初始化动作
 	for _, action := range model.InitialActions {
 		action.ProgramUUID = program.Uuid // 设置动作的 ProgramUUID
+		action.Uuid = uuid.New().String() // 设置动作的 UUID
 		result := tx.Create(&action)
 		if result.Error != nil {
 			tx.Rollback() // 回滚事务

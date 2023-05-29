@@ -11,6 +11,7 @@ type Config struct {
 	ServerPort string
 	LogConfig  LogConfig
 	MySQL      MySQLConfig
+	PkgFileDir string
 }
 
 type LogConfig struct {

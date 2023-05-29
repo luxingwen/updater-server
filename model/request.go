@@ -52,3 +52,7 @@ type ReqClientQuery struct {
 	Ip       string `json:"ip"`
 	Sn       string `json:"sn"`
 }
+
+type ReqDeletePackageFile struct {
+	FileName string `json:"filename"`
+}

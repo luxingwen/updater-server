@@ -64,6 +64,8 @@ func main() {
 		v1.POST("/program/package/update", packageController.UpdatePackage)
 		v1.POST("/program/package/create", packageController.CreatePackage)
 		v1.POST("/program/package/delete", packageController.DeletePackage)
+		v1.POST("/program/package/file/upload/:programUuid", packageController.UploadFile)
+		v1.POST("/program/package/file/delete/:programUuid", packageController.DeleteFile)
 	}
 
 	actionController := &controller.ProgramActionController{
@@ -78,6 +80,7 @@ func main() {
 		v1.POST("/program/action/update", actionController.UpdateProgramAction)
 		v1.POST("/program/action/delete", actionController.DeleteProgramAction)
 		v1.POST("/program/action/execute", actionController.CreateActionTask)
+		v1.POST("/program/action/detail", actionController.GetProgramActionByUUID)
 	}
 
 	clientController := &controller.ClientController{

@@ -2,6 +2,8 @@ package controller
 
 import (
 	"net/http"
+	"os"
+	"path"
 	"updater-server/model"
 	"updater-server/pkg/app"
 	"updater-server/service"
@@ -97,4 +99,62 @@ func (pc *PackageController) DeletePackage(c *app.Context) {
 		return
 	}
 	c.JSONSuccess(gin.H{"message": "Package deleted successfully"})
+}
+
+func (pc *PackageController) UploadFile(c *app.Context) {
+	programUuid := c.Param("programUuid")
+
+	savePathdir := path.Join(c.Config.PkgFileDir, programUuid)
+
+	_, err := os.Stat(savePathdir)
+	if err != nil && os.IsNotExist(err) {
+
+		err := os.MkdirAll(savePathdir, 0755)
+		if err != nil {
+			c.JSONError(http.StatusInternalServerError, err.Error())
+			return
+		}
+
+	}
+
+	// 获取文件
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	saveFilePath := path.Join(savePathdir, file.Filename)
+
+	// 将文件保存到指定路径
+	err = c.SaveUploadedFile(file, saveFilePath)
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSONSuccess(saveFilePath)
+
+}
+
+// DeleteFile deletes a file by name.
+func (pc *PackageController) DeleteFile(c *app.Context) {
+	programUuid := c.Param("programUuid")
+
+	var query model.ReqDeletePackageFile
+
+	if err := c.ShouldBindJSON(&query); err != nil {
+		c.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	filePath := path.Join(c.Config.PkgFileDir, programUuid, query.FileName)
+
+	err := os.Remove(filePath)
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSONSuccess(gin.H{"message": "File deleted successfully"})
 }

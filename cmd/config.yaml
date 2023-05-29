@@ -1,4 +1,5 @@
 ServerPort: ":8080"
+PkgFileDir: "public/programs"
 LogConfig:
   Level: "info"
   Format: "console"

@@ -20,6 +20,24 @@ type ProgramActionController struct {
 	TaskExecutionRecordService *service.TaskExecutionRecordService
 }
 
+func (pac *ProgramActionController) GetProgramActionByUUID(c *app.Context) {
+
+	var query model.ProgramAction
+
+	if err := c.ShouldBindJSON(&query); err != nil {
+		c.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	action, err := pac.Service.GetProgramActionByUUID(c, query.Uuid)
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSONSuccess(action)
+}
+
 func (pac *ProgramActionController) GetAllProgramActions(c *app.Context) {
 	var query model.ReqProgramActionQuery
 
