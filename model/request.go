@@ -56,3 +56,12 @@ type ReqClientQuery struct {
 type ReqDeletePackageFile struct {
 	FileName string `json:"filename"`
 }
+
+type UserQuery struct {
+	Pagination
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
+	Role     string `json:"role"`
+	TeamId   string `json:"teamId"`
+}

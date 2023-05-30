@@ -36,9 +36,17 @@ func main() {
 
 	serverApp.Use(app.RequestLogger(), app.ResponseLogger())
 
-	programController := &controller.ProgramController{Service: &service.ProgramService{}}
-
 	v1 := serverApp.Group("/api/v1")
+
+	authController := &controller.AuthController{AuthService: &service.AuthService{}}
+
+	userController := &controller.UserController{UserService: &service.UserService{}}
+	{
+		v1.POST("/user/login", authController.Login)
+		v1.POST("/user/info", userController.UserInfo)
+	}
+
+	programController := &controller.ProgramController{Service: &service.ProgramService{}}
 
 	{
 		v1.POST("/program/list", programController.GetAllPrograms)
