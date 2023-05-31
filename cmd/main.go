@@ -6,6 +6,8 @@ import (
 	"updater-server/pkg/config"
 	"updater-server/service"
 
+	"updater-server/wsserver"
+
 	"github.com/gin-gonic/gin"
 
 	"io/ioutil"
@@ -33,6 +35,8 @@ func main() {
 		}
 		c.Data(http.StatusOK, "text/html; charset=utf-8", b)
 	})
+
+	initWsserver(serverApp)
 
 	serverApp.Use(app.RequestLogger(), app.ResponseLogger())
 
@@ -106,4 +110,29 @@ func main() {
 	}
 
 	serverApp.Router.Run(serverApp.Config.ServerPort)
+}
+
+func initWsserver(serverApp *app.App) {
+	wsContext := &wsserver.Context{
+		DB:     serverApp.DB,
+		Redis:  serverApp.Redis,
+		Logger: serverApp.Logger,
+		Config: serverApp.Config,
+		Proxy:  wsserver.NewProxyManager(),
+	}
+
+	wsController := &controller.WsController{
+		MessageHandler: getMessageHandler(wsContext),
+	}
+
+	serverApp.GET("/api/v1/ws/:uuid", wsController.Connect)
+	serverApp.POST("/api/v1/proxy/info", wsController.GetAllProxy)
+
+}
+
+func getMessageHandler(wsContext *wsserver.Context) *wsserver.MessageHandler {
+	msghanlder := wsserver.NewMessageHandler(wsContext, 10)
+	msghanlder.RegisterHandler("ProxyHeartBeat", wsserver.HandlerProxyHeartBeat)
+	msghanlder.PrintRegisteredHandlers()
+	return msghanlder
 }

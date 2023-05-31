@@ -1,15 +1,16 @@
 package app
 
-
 import (
-	"github.com/google/uuid"
-	"github.com/gorilla/websocket"
-	"gorm.io/gorm"
 	"updater-server/pkg/config"
 	"updater-server/pkg/logger"
 	"updater-server/pkg/redisop"
 
+	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
+	"gorm.io/gorm"
+
 	"net/http"
+
 	"go.uber.org/zap"
 )
 
@@ -39,10 +40,10 @@ func (app *App) WrapWS(hf WsHandlerFunc) http.HandlerFunc {
 		}
 
 		cc := &WSContext{
-			Conn:    conn,
-			DB:      app.DB,
-			Redis:   app.Redis,
-			Logger:  app.Logger.With(
+			Conn:  conn,
+			DB:    app.DB,
+			Redis: app.Redis,
+			Logger: app.Logger.With(
 				zap.String("traceID", traceID),
 			),
 			Config:  app.Config,
@@ -51,7 +52,3 @@ func (app *App) WrapWS(hf WsHandlerFunc) http.HandlerFunc {
 		hf(cc)
 	}
 }
-
-
-
-
