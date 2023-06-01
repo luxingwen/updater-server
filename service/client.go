@@ -61,9 +61,9 @@ func (s *ClientService) GetClientByHostInfo(ctx *app.Context, hostinfo model.Hos
 	return hostinfo.Clients, nil
 }
 
-func (s *ClientService) GetClientByID(ctx *app.Context, id uint) (*model.Client, error) {
+func (s *ClientService) GetClientByUUID(ctx *app.Context, uuid string) (*model.Client, error) {
 	client := &model.Client{}
-	err := ctx.DB.First(client, id).Error
+	err := ctx.DB.Model(&model.Client{}).Where("uuid = ?", uuid).First(client).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil // 返回 nil 表示未找到记录
@@ -120,6 +120,37 @@ func (s *ClientService) FindClientByCriteria(ctx *app.Context, vmuuid, sn, hostn
 	}
 
 	return client, nil
+}
+
+func (s *ClientService) Register(ctx *app.Context, client *model.Client) error {
+
+	// 检查是否已经注册过
+	r, err := s.GetClientByUUID(ctx, client.Uuid)
+	if err != nil {
+		return fmt.Errorf("failed to register client: %w", err)
+	}
+	if err == nil && r == nil {
+		client.Created = time.Now()
+		client.Updated = time.Now()
+
+		err := ctx.DB.Create(client).Error
+		if err != nil {
+			return fmt.Errorf("failed to register client: %w", err)
+		}
+		return nil
+	}
+
+	// 更新注册信息
+	r.VMUUID = client.VMUUID
+	r.Hostname = client.Hostname
+	r.IP = client.IP
+	r.SN = client.SN
+	r.Updated = time.Now()
+	r.Status = "online"
+
+	err = ctx.DB.Save(r).Error
+	return err
+
 }
 
 func (s *ClientService) QueryClient(ctx *app.Context, query *model.ReqClientQuery) (r *model.PagedResponse, err error) {

@@ -57,6 +57,30 @@ func (c *RedisClient) Get(ctx context.Context, key string) (string, error) {
 	return c.standaloneClient.Get(ctx, key).Result()
 }
 
+// Enqueue adds a value to the end of the queue with the given key
+func (c *RedisClient) Enqueue(ctx context.Context, key, value string) error {
+	if c.isCluster {
+		return c.clusterClient.RPush(ctx, key, value).Err()
+	}
+	return c.standaloneClient.RPush(ctx, key, value).Err()
+}
+
+// Dequeue removes and returns the first value from the queue with the given key
+func (c *RedisClient) Dequeue(ctx context.Context, key string) (string, error) {
+	if c.isCluster {
+		return c.clusterClient.LPop(ctx, key).Result()
+	}
+	return c.standaloneClient.LPop(ctx, key).Result()
+}
+
+// QueueLength returns the length of the queue with the given key
+func (c *RedisClient) QueueLength(ctx context.Context, key string) (int64, error) {
+	if c.isCluster {
+		return c.clusterClient.LLen(ctx, key).Result()
+	}
+	return c.standaloneClient.LLen(ctx, key).Result()
+}
+
 func (c *RedisClient) Close() error {
 	if c.isCluster {
 		return c.clusterClient.Close()

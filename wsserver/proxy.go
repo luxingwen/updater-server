@@ -5,6 +5,7 @@ import (
 	"errors"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -79,11 +80,29 @@ func (pc *ProxyClient) Start() {
 
 }
 
-// 向服务器发送消息
-func (pc *ProxyClient) SendMessage(msg []byte) {
+func (pc *ProxyClient) Send(msg []byte) {
 	if pc.Connected {
 		pc.send <- msg
 	}
+}
+
+func (pc *ProxyClient) SendMessage(msg *Message) (err error) {
+
+	if msg.To == "" {
+		err = errors.New("target client is empty")
+		return
+	}
+
+	if msg.Id == "" {
+		msg.Id = uuid.New().String()
+	}
+
+	jsonMsg, err := json.Marshal(msg)
+	if err != nil {
+		return
+	}
+	pc.Send(jsonMsg)
+	return
 }
 
 type ProxyManager struct {

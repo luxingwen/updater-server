@@ -132,7 +132,14 @@ func initWsserver(serverApp *app.App) {
 
 func getMessageHandler(wsContext *wsserver.Context) *wsserver.MessageHandler {
 	msghanlder := wsserver.NewMessageHandler(wsContext, 10)
+
+	wsAuthController := &wsserver.WsAuthController{
+		ClientService: &service.ClientService{},
+	}
+
 	msghanlder.RegisterHandler("ProxyHeartBeat", wsserver.HandlerProxyHeartBeat)
+	msghanlder.RegisterHandler("Heartbeat", wsserver.HandlerClientHeartBeat)
+	msghanlder.RegisterHandler("Register", wsAuthController.HandlerRegister)
 	msghanlder.PrintRegisteredHandlers()
 	return msghanlder
 }
