@@ -9,6 +9,7 @@ import (
 	"updater-server/pkg/redisop"
 	"updater-server/service"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -55,17 +56,17 @@ func (ctx *Context) JSONError(code string, msg *Message) {
 	}
 }
 
-func (ctx *Context) SendRequest(uuid string, typ string, req interface{}) (err error) {
+func (ctx *Context) SendRequest(to string, typ string, req interface{}) (err error) {
 	msg := &Message{
-		UUID:   uuid,
+		Id:     uuid.New().String(),
 		Method: METHOD_REQUEST,
 		Type:   typ,
-		To:     uuid,
+		To:     to,
 	}
 
 	clientService := &service.ClientService{}
 
-	client, err := clientService.GetClientByUUID(ctx.AppContext(), uuid)
+	client, err := clientService.GetClientByUUID(ctx.AppContext(), to)
 	if err != nil {
 		ctx.Logger.Error(err)
 		return
@@ -76,17 +77,17 @@ func (ctx *Context) SendRequest(uuid string, typ string, req interface{}) (err e
 		return
 	}
 
-	client, err := ctx.Proxy.GetProxy(client.UUID)
+	clientPorxy, err := ctx.Proxy.GetProxy(client.ProxyID)
 
 	if err != nil {
 		ctx.Logger.Error(err)
 		return
 	}
 
-	b, _ := json.Marshaler(req)
+	b, _ := json.Marshal(req)
 
 	msg.Data = json.RawMessage(b)
 
-	client.SendMessage(msg)
+	clientPorxy.SendMessage(msg)
 	return
 }

@@ -7,6 +7,8 @@ import (
 
 	"updater-server/model"
 	"updater-server/pkg/app"
+
+	"github.com/go-redis/redis/v8"
 )
 
 const (
@@ -25,13 +27,13 @@ func EnqueueTask(ctx *app.Context, task *model.Task) error {
 func ExecuteTask(ctx *app.Context) error {
 	taskJSON, err := ctx.Redis.Dequeue(context.Background(), TaskQueueKey)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	task := &model.Task{}
 	err = json.Unmarshal([]byte(taskJSON), task)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if task.TaskType == "program" {
@@ -51,10 +53,10 @@ func ExecuteTask(ctx *app.Context) error {
 	task.TaskStatus = "completed"
 	err = ctx.DB.Save(&task).Error
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return task, nil
+	return nil
 }
 
 func Worker(ctx context.Context, appCtx *app.Context) {

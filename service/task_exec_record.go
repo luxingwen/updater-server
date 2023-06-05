@@ -5,7 +5,7 @@ import (
 	"updater-server/pkg/app"
 )
 
-type TaskExecutionRecordService struct {}
+type TaskExecutionRecordService struct{}
 
 func (ts *TaskExecutionRecordService) CreateRecord(ctx *app.Context, record *model.TaskExecutionRecord) error {
 	result := ctx.DB.Create(record)
