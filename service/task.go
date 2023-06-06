@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"updater-server/model"
 	"updater-server/pkg/app"
 
@@ -25,10 +26,26 @@ func (ts *TaskService) UpdateTask(ctx *app.Context, updatedTask *model.Task) err
 	return result.Error
 }
 
+func (ts *TaskService) UpdateTaskContent(ctx *app.Context, taskID string, content interface{}) error {
+
+	b, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+	result := ctx.DB.Model(&model.Task{}).Where("task_id = ?", taskID).Update("content", string(b))
+	return result.Error
+}
+
 func (ts *TaskService) DeleteTask(ctx *app.Context, taskID string) error {
 	var task model.Task
 	result := ctx.DB.Where("task_id = ?", taskID).Delete(&task)
 	return result.Error
+}
+
+func (ts *TaskService) GetTaskInfo(ctx *app.Context, taskID string) (*model.Task, error) {
+	var task model.Task
+	result := ctx.DB.Where("task_id = ?", taskID).First(&task)
+	return &task, result.Error
 }
 
 func (ts *TaskService) GetAllTasks(ctx *app.Context, query *model.ReqTaskQuery) (*model.PagedResponse, error) {
@@ -40,6 +57,10 @@ func (ts *TaskService) GetAllTasks(ctx *app.Context, query *model.ReqTaskQuery) 
 
 	if query.TeamId != "" {
 		sess = sess.Where("team_id = ?", query.TeamId)
+	}
+
+	if len(query.TaskIds) > 0 {
+		sess = sess.Where("task_id IN(?)", query.TaskIds)
 	}
 
 	var tasks []model.Task

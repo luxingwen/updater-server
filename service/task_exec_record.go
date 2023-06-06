@@ -1,6 +1,7 @@
 package service
 
 import (
+	"encoding/json"
 	"updater-server/model"
 	"updater-server/pkg/app"
 )
@@ -14,6 +15,16 @@ func (ts *TaskExecutionRecordService) CreateRecord(ctx *app.Context, record *mod
 
 func (ts *TaskExecutionRecordService) UpdateRecord(ctx *app.Context, updatedRecord *model.TaskExecutionRecord) error {
 	result := ctx.DB.Model(&model.TaskExecutionRecord{}).Where("record_id = ?", updatedRecord.RecordID).Updates(updatedRecord)
+	return result.Error
+}
+
+func (ts *TaskExecutionRecordService) UpdaterRecordContent(ctx *app.Context, recordID string, content interface{}) error {
+	b, err := json.Marshal(content)
+	if err != nil {
+		return err
+	}
+
+	result := ctx.DB.Model(&model.TaskExecutionRecord{}).Where("record_id = ?", recordID).Update("content", string(b))
 	return result.Error
 }
 

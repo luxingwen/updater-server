@@ -107,6 +107,7 @@ func main() {
 	}
 	{
 		v1.POST("/task/list", taskController.QueryTasks)
+		v1.POST("/task/detail", taskController.GetTaskInfo)
 	}
 
 	serverApp.Router.Run(serverApp.Config.ServerPort)

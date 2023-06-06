@@ -10,7 +10,8 @@ type Task struct {
 	Id           uint      `gorm:"primaryKey"`
 	TaskID       string    `json:"taskId"`
 	TaskName     string    `json:"taskName"`
-	TaskType     string    `json:"taskType"`
+	TaskType     string    `json:"taskType"` // 任务类型
+	Category     string    `json:"category"` // 任务类别 root
 	TaskStatus   string    `json:"taskStatus"`
 	ParentTaskID string    `json:"parentTaskId"`
 	Content      string    `json:"content"`
@@ -27,6 +28,7 @@ type TaskExecutionRecord struct {
 	RecordID       string        `json:"recordId"`
 	TaskID         string        `json:"taskId"`
 	ClientUUID     string        `json:"clientUuid"`
+	Category       string        `json:"category"` // 任务类别
 	TaskType       string        `json:"taskType"`
 	Status         string        `json:"status"`
 	StartTime      time.Time     `json:"startTime"`
@@ -59,6 +61,7 @@ type TaskBatchesInfo struct {
 	TaskID     string   `json:"task_id"`
 	Total      int      `json:"total"`
 	NextTaskID string   `json:"next_task_id"`
+	Sequence   int      `json:"sequence"`
 	Clients    []string `json:"clients"`
 }
 
@@ -69,6 +72,7 @@ func (self BatchTask) GenerateTaskBatchesInfo(clients []string) (r []TaskBatches
 			TaskID:     uuid.New().String(),
 			Total:      bs[i],
 			NextTaskID: "",
+			Sequence:   i + 1,
 			Clients:    clients[:bs[i]],
 		})
 		clients = clients[bs[i]:]
@@ -157,3 +161,30 @@ type ReqTaskProgramAction struct {
 	ReqTask
 	Content ProgramActionTask `json:"content"`
 }
+
+type TaskContent struct {
+	Type    string      `json:"type"`
+	Content interface{} `json:"content"`
+}
+
+type TaskContentInfo struct {
+	TaskID       string `json:"taskId"`
+	Sequence     int    `json:"sequence"`
+	TaskRecordId string `json:"taskRecordId"`
+}
+
+type TaskType string
+
+const (
+	TaskTypeScript        TaskType = "script"
+	TaskTypeProgram       TaskType = "program"
+	TaskTypeProgramAction TaskType = "programAction"
+	TaskTypeBatch         TaskType = "batch"
+)
+
+type TaskCategory string
+
+const (
+	TaskCategoryRoot TaskCategory = "root"
+	TaskCategorySub  TaskCategory = "sub"
+)

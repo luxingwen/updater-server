@@ -113,18 +113,14 @@ func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 		return
 	}
 	if len(clients) == 0 {
+		c.Logger.Errorf("no client found, HostInfo: %v", actionTask.HostInfo)
 		c.JSONError(http.StatusInternalServerError, "no client found")
 		return
 	}
 
 	action, err := pac.Service.GetProgramActionByUUID(c, actionTask.Content.ProgramActionUuid)
 	if err != nil {
-		c.JSONError(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	content, err := json.Marshal(actionTask.Content)
-	if err != nil {
+		c.Logger.Errorf("GetProgramActionByUUID error:%s, ProgramActionUuid: %s", err.Error(), actionTask.Content.ProgramActionUuid)
 		c.JSONError(http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -135,82 +131,128 @@ func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 		Description: actionTask.Description,
 		Creater:     actionTask.Creater,
 		TaskType:    string(action.ActionType),
-		Content:     string(content),
 	}
 
 	err = pac.TaskService.CreateTask(c, task)
 	if err != nil {
+		c.Logger.Errorf("CreateTask error:%s, Task: %v", err.Error(), task)
 		c.JSONError(http.StatusInternalServerError, err.Error())
 		return
 	}
 
+	taskContentInfoList := make([]model.TaskContentInfo, 0)
+
+	taskContent := &model.TaskContent{
+		Type: "task",
+	}
+
 	if actionTask.BatchTask.IsBatchTask() {
+
 		taskBatchesInfoList := actionTask.BatchTask.GenerateTaskBatchesInfo(clients)
 
 		for _, taskBatchInfo := range taskBatchesInfoList {
 			bsContent, err := json.Marshal(taskBatchInfo)
 			if err != nil {
+				c.Logger.Errorf("json.Marshal error:%s, TaskBatchInfo: %v", err.Error(), taskBatchInfo)
 				c.JSONError(http.StatusInternalServerError, err.Error())
 				return
 			}
 
 			batchesTask := &model.Task{
-				TaskID:     taskBatchInfo.TaskID,
-				TaskType:   "batches",
-				NextTaskID: taskBatchInfo.NextTaskID,
-				Content:    string(bsContent),
+				TaskID:       taskBatchInfo.TaskID,
+				TaskType:     "batches",
+				NextTaskID:   taskBatchInfo.NextTaskID,
+				Content:      string(bsContent),
+				ParentTaskID: task.TaskID,
+				Category:     "root",
 			}
+
+			taskContentInfoList = append(taskContentInfoList, model.TaskContentInfo{
+				TaskID:   taskBatchInfo.TaskID,
+				Sequence: taskBatchInfo.Sequence,
+			})
 
 			err = pac.TaskService.CreateTask(c, batchesTask)
 			if err != nil {
+				c.Logger.Errorf("CreateTask error:%s, Task: %v", err.Error(), batchesTask)
 				c.JSONError(http.StatusInternalServerError, err.Error())
 				return
 			}
 
+			batchesTaskContentInfoList := make([]model.TaskContentInfo, 0)
+
 			for _, client := range taskBatchInfo.Clients {
-				err = pac.createTaskExecutionRecord(c, taskBatchInfo.TaskID, client, action.Content, action.ActionType)
+
+				recordId := uuid.New().String()
+
+				batchesTaskContentInfoList = append(batchesTaskContentInfoList, model.TaskContentInfo{
+					TaskRecordId: recordId,
+					Sequence:     0,
+				})
+
+				err = pac.createTaskExecutionRecord(c, taskBatchInfo.TaskID, recordId, client, action)
 				if err != nil {
+					c.Logger.Errorf("createTaskExecutionRecord error:%s, TaskBatchInfo: %v", err.Error(), taskBatchInfo)
 					c.JSONError(http.StatusInternalServerError, err.Error())
 					return
 				}
 
-				if action.ActionType == model.ActionTypeComposite {
-					err = pac.createSubTaskExecutionRecords(c, task, client, taskBatchInfo.TaskID, action)
-					if err != nil {
-						c.JSONError(http.StatusInternalServerError, err.Error())
-						return
-					}
-				}
 			}
+			batchesTaskContent := &model.TaskContent{
+				Type:    "record",
+				Content: batchesTaskContentInfoList,
+			}
+			err = pac.TaskService.UpdateTaskContent(c, batchesTask.TaskID, batchesTaskContent)
+			if err != nil {
+				c.Logger.Errorf("UpdateTaskContent error:%s, TaskBatchInfo: %v", err.Error(), taskBatchInfo)
+				c.JSONError(http.StatusInternalServerError, err.Error())
+				return
+			}
+
 		}
 	} else {
 		for _, client := range clients {
-			err = pac.createTaskExecutionRecord(c, task.TaskID, client, action.Content, action.ActionType)
+
+			recordId := uuid.New().String()
+			taskContentInfoList = append(taskContentInfoList, model.TaskContentInfo{
+				TaskRecordId: recordId,
+				Sequence:     0,
+			})
+
+			err = pac.createTaskExecutionRecord(c, task.TaskID, recordId, client, action)
 			if err != nil {
+				c.Logger.Errorf("createTaskExecutionRecord error:%s, Task: %v", err.Error(), task)
 				c.JSONError(http.StatusInternalServerError, err.Error())
 				return
 			}
 
-			if action.ActionType == model.ActionTypeComposite {
-				err = pac.createSubTaskExecutionRecords(c, task, client, "", action)
-				if err != nil {
-					c.JSONError(http.StatusInternalServerError, err.Error())
-					return
-				}
-			}
 		}
+	}
+
+	taskContent.Content = taskContentInfoList
+
+	err = pac.TaskService.UpdateTaskContent(c, task.TaskID, taskContent)
+	if err != nil {
+		c.Logger.Errorf("UpdateTaskContent error:%s, Task: %v", err.Error(), task)
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	c.JSONSuccess(task)
 }
 
-func (pac *ProgramActionController) createTaskExecutionRecord(c *app.Context, taskID string, client string, content string, taskType model.ActionType) error {
+func (pac *ProgramActionController) createTaskExecutionRecord(c *app.Context, taskID string, recordId string, client string, action *model.ProgramAction) error {
 	taskExecutionRecord := &model.TaskExecutionRecord{
-		RecordID:   uuid.New().String(),
+		RecordID:   recordId,
 		TaskID:     taskID,
 		ClientUUID: client,
-		Content:    content,
-		TaskType:   string(taskType),
+		Content:    action.Content,
+		TaskType:   string(action.ActionType),
+		Category:   "sub",
+	}
+
+	if action.ActionType == model.ActionTypeComposite {
+		taskExecutionRecord.Category = "root"
 	}
 
 	err := pac.TaskExecutionRecordService.CreateRecord(c, taskExecutionRecord)
@@ -218,36 +260,75 @@ func (pac *ProgramActionController) createTaskExecutionRecord(c *app.Context, ta
 		return err
 	}
 
+	if action.ActionType == model.ActionTypeComposite {
+		err = pac.createSubTaskExecutionRecords(c, taskID, client, recordId, action)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
-func (pac *ProgramActionController) createSubTaskExecutionRecords(c *app.Context, task *model.Task, client string, parentRecordID string, action *model.ProgramAction) error {
+func (pac *ProgramActionController) createSubTaskExecutionRecords(c *app.Context, taskId string, client string, parentRecordID string, action *model.ProgramAction) error {
 	actionTemplates := make([]*model.TemplateAction, 0)
 	err := json.Unmarshal([]byte(action.Content), &actionTemplates)
 	if err != nil {
+		c.Logger.Errorf("json.Unmarshal error:%s, Content: %s", err.Error(), action.Content)
 		c.JSONError(http.StatusInternalServerError, err.Error())
 		return err
 	}
 
-	for _, actionTemplate := range actionTemplates {
-		subAction, err := pac.Service.GetProgramActionByUUID(c, actionTemplate.ProgramActionUuid)
+	model.GenerateTemplateActionNextUuids(actionTemplates)
+
+	contentList := make([]model.TaskContentInfo, 0)
+
+	for i, actionTemplate := range actionTemplates {
+
+		recordId := actionTemplate.TaskRecordId
+
+		subAction, err := pac.Service.GetProgramActionByUUID(c, actionTemplate.Uuid)
 		if err != nil {
 			return err
 		}
 
 		subTaskExecutionRecord := &model.TaskExecutionRecord{
-			RecordID:       actionTemplate.Uuid,
-			TaskID:         task.TaskID,
+			RecordID:       recordId,
+			TaskID:         taskId,
 			ClientUUID:     client,
 			Content:        subAction.Content,
 			ParentRecordID: parentRecordID,
+			Category:       "sub",
+			NextRecordID:   actionTemplate.NextTaskRecordId,
+		}
+
+		contentList = append(contentList, model.TaskContentInfo{
+			TaskRecordId: recordId,
+			Sequence:     i + 1,
+		})
+
+		if subAction.ActionType == model.ActionTypeComposite {
+			subTaskExecutionRecord.Category = "root"
 		}
 
 		err = pac.TaskExecutionRecordService.CreateRecord(c, subTaskExecutionRecord)
 		if err != nil {
 			return err
 		}
+
+		if subAction.ActionType == model.ActionTypeComposite {
+			err = pac.createSubTaskExecutionRecords(c, taskId, client, recordId, subAction)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
+	taskContent := &model.TaskContent{
+		Type:    "record",
+		Content: contentList,
+	}
+
+	pac.TaskExecutionRecordService.UpdaterRecordContent(c, parentRecordID, taskContent)
 	return nil
 }

@@ -39,9 +39,10 @@ type ReqPackageQuery struct {
 
 type ReqTaskQuery struct {
 	Pagination
-	TaskName string `json:"taskName"`
-	TeamId   string `json:"teamId"`
-	Creater  string `json:"creater"`
+	TaskName string   `json:"taskName"`
+	TeamId   string   `json:"teamId"`
+	Creater  string   `json:"creater"`
+	TaskIds  []string `json:"taskIds"`
 }
 
 type ReqClientQuery struct {

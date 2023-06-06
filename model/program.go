@@ -75,12 +75,14 @@ type TemplateAction struct {
 	Sequence          int    `json:"sequence"`
 	Uuid              string `json:"uuid"`
 	NextUuid          string `json:"nextUuid"`
+	TaskRecordId      string `json:"taskRecordId"`
+	NextTaskRecordId  string `json:"nextTaskRecordId"`
 }
 
 func GenerateTemplateActionNextUuids(actions []*TemplateAction) {
 
 	for i := 0; i < len(actions); i++ {
-		actions[i].Uuid = uuid.New().String()
+		actions[i].TaskRecordId = uuid.New().String()
 	}
 
 	// 按照 Sequence 进行排序
@@ -90,9 +92,9 @@ func GenerateTemplateActionNextUuids(actions []*TemplateAction) {
 
 	for i := 0; i < len(actions); i++ {
 		if i == len(actions)-1 {
-			actions[i].NextUuid = ""
+			actions[i].NextTaskRecordId = ""
 		} else {
-			actions[i].NextUuid = actions[i+1].Uuid
+			actions[i].NextTaskRecordId = actions[i+1].TaskRecordId
 		}
 	}
 }
