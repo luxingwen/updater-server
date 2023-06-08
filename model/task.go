@@ -19,6 +19,7 @@ type Task struct {
 	Creater      string    `json:"creater"`
 	TeamID       string    `json:"teamId"`
 	NextTaskID   string    `json:"nextTaskId"`
+	Ext          string    `json:"ext"`
 	CreatedAt    time.Time `gorm:"column:created_at" json:"created"`
 	UpdatedAt    time.Time `gorm:"column:updated_at" json:"updated"`
 }
@@ -89,7 +90,7 @@ func (self BatchTask) GenerateTaskBatchesInfo(clients []string) (r []TaskBatches
 }
 
 func (self BatchTask) GetBatchesList(total int) (r []int) {
-	if self.Style == "normal" {
+	if self.Style == "average" {
 		return self.GetAverage(total)
 	}
 	for self.count < total {
@@ -144,8 +145,10 @@ func (self BatchTask) IsBatchTask() bool {
 }
 
 type ProgramActionTask struct {
-	ProgramUuid       string `json:"programUuid"`
-	ProgramActionUuid string `json:"programActionUuid"`
+	ProgramUuid        string `json:"programUuid"`        // 程序uuid
+	ProgramActionUuid  string `json:"programActionUuid"`  // 程序动作uuid
+	ProgramVersionUuid string `json:"programVersionUuid"` // 程序版本uuid
+	Timeout            int    `json:"timeout"`            // 超时时间
 }
 
 type ReqTask struct {
@@ -187,4 +190,14 @@ type TaskCategory string
 const (
 	TaskCategoryRoot TaskCategory = "root"
 	TaskCategorySub  TaskCategory = "sub"
+)
+
+const (
+	TaskStatusPreparing = "Preparing" // 准备中
+	TaskStatusReady     = "Ready"     // 准备完成,就绪状态，等待执行
+	TaskStatusRunning   = "Running"   // 执行中
+	TaskStatusPaused    = "Paused"    // 暂停
+	TaskStatusAbandoned = "Abandoned" // 废弃
+	TaskStatusCompleted = "Completed" // 完成
+	TaskStatusFailed    = "Failed"    // 失败
 )

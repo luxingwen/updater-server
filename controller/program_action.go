@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"updater-server/model"
 	"updater-server/pkg/app"
@@ -107,6 +108,12 @@ func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 		return
 	}
 
+	reqbody, err := json.Marshal(actionTask)
+	if err != nil {
+		c.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+
 	clients, err := pac.ClientService.GetClientByHostInfo(c, actionTask.HostInfo)
 	if err != nil {
 		c.JSONError(http.StatusInternalServerError, err.Error())
@@ -130,7 +137,9 @@ func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 		TaskName:    actionTask.Name,
 		Description: actionTask.Description,
 		Creater:     actionTask.Creater,
-		TaskType:    string(action.ActionType),
+		TaskType:    action.Name,
+		TaskStatus:  model.TaskStatusPreparing,
+		Ext:         string(reqbody),
 	}
 
 	err = pac.TaskService.CreateTask(c, task)
@@ -158,6 +167,8 @@ func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 				return
 			}
 
+			batchTaskName := fmt.Sprintf("第%d批次", taskBatchInfo.Sequence)
+
 			batchesTask := &model.Task{
 				TaskID:       taskBatchInfo.TaskID,
 				TaskType:     "batches",
@@ -165,6 +176,8 @@ func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 				Content:      string(bsContent),
 				ParentTaskID: task.TaskID,
 				Category:     "root",
+				TaskName:     batchTaskName,
+				TaskStatus:   model.TaskStatusPreparing,
 			}
 
 			taskContentInfoList = append(taskContentInfoList, model.TaskContentInfo{
@@ -211,6 +224,7 @@ func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 
 		}
 	} else {
+		taskContent.Type = "record"
 		for _, client := range clients {
 
 			recordId := uuid.New().String()
@@ -247,8 +261,9 @@ func (pac *ProgramActionController) createTaskExecutionRecord(c *app.Context, ta
 		TaskID:     taskID,
 		ClientUUID: client,
 		Content:    action.Content,
-		TaskType:   string(action.ActionType),
+		TaskType:   action.Name,
 		Category:   "sub",
+		Status:     model.TaskStatusPreparing,
 	}
 
 	if action.ActionType == model.ActionTypeComposite {
@@ -299,7 +314,9 @@ func (pac *ProgramActionController) createSubTaskExecutionRecords(c *app.Context
 			Content:        subAction.Content,
 			ParentRecordID: parentRecordID,
 			Category:       "sub",
+			TaskType:       subAction.Name,
 			NextRecordID:   actionTemplate.NextTaskRecordId,
+			Status:         model.TaskStatusPreparing,
 		}
 
 		contentList = append(contentList, model.TaskContentInfo{

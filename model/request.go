@@ -66,3 +66,9 @@ type UserQuery struct {
 	Role     string `json:"role"`
 	TeamId   string `json:"teamId"`
 }
+
+type ReqTaskRecordeQuery struct {
+	Pagination
+	TaskId    string   `json:"taskId"`
+	RecordIds []string `json:"recordIds"`
+}

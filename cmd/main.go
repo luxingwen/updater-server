@@ -108,6 +108,15 @@ func main() {
 	{
 		v1.POST("/task/list", taskController.QueryTasks)
 		v1.POST("/task/detail", taskController.GetTaskInfo)
+
+	}
+
+	taskExecRecordDetail := &controller.TaskExecRecordController{
+		Service: &service.TaskExecutionRecordService{},
+	}
+
+	{
+		v1.POST("/task/record/list", taskExecRecordDetail.QueryTaskExecRecords)
 	}
 
 	serverApp.Router.Run(serverApp.Config.ServerPort)

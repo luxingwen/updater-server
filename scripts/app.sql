@@ -82,21 +82,28 @@ CREATE TABLE IF NOT EXISTS program_action (
 
 
 
-CREATE TABLE IF NOT EXISTS tasks (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    task_id VARCHAR(255) NOT NULL UNIQUE,
-    task_name VARCHAR(255),
-    task_type VARCHAR(255),
-    task_status VARCHAR(255),
-    parent_task_id VARCHAR(255),
-    content VARCHAR(255),
-    description VARCHAR(255),
-    creater VARCHAR(255),
-    team_id VARCHAR(255),
-    next_task_id VARCHAR(255),
-   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-)ENGINE=InnoDB;
+CREATE TABLE `tasks` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `task_id` varchar(255) NOT NULL,
+  `task_name` varchar(255) DEFAULT NULL,
+  `task_type` varchar(255) DEFAULT NULL,
+  `task_status` varchar(255) DEFAULT NULL,
+  `parent_task_id` varchar(255) DEFAULT NULL,
+  `content` longtext DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `creater` varchar(255) DEFAULT NULL,
+  `team_id` varchar(255) DEFAULT NULL,
+  `category` varchar(255) DEFAULT NULL,
+  `next_task_id` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL,
+  `updated_at` timestamp NOT NULL,
+  `ext` longtext DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `task_id` (`task_id`),
+  INDEX `idx_parent_task_id` (`parent_task_id`)
+) ENGINE=InnoDB;
+
+
 
 
 CREATE TABLE IF NOT EXISTS task_execution_records (
