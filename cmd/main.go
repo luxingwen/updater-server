@@ -38,6 +38,8 @@ func main() {
 
 	initWsserver(serverApp)
 
+	serverApp.Router.Static("/api/v1/pkg", "./public")
+
 	serverApp.Use(app.RequestLogger(), app.ResponseLogger())
 
 	v1 := serverApp.Group("/api/v1")

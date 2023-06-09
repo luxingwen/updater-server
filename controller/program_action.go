@@ -256,12 +256,14 @@ func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 }
 
 func (pac *ProgramActionController) createTaskExecutionRecord(c *app.Context, taskID string, recordId string, client string, action *model.ProgramAction) error {
+
 	taskExecutionRecord := &model.TaskExecutionRecord{
 		RecordID:   recordId,
 		TaskID:     taskID,
 		ClientUUID: client,
-		Content:    action.Content,
-		TaskType:   action.Name,
+		Content:    pac.getTaskRecordContent(c, action),
+		TaskType:   string(action.ActionType),
+		Name:       action.Name,
 		Category:   "sub",
 		Status:     model.TaskStatusPreparing,
 	}
@@ -306,15 +308,15 @@ func (pac *ProgramActionController) createSubTaskExecutionRecords(c *app.Context
 		if err != nil {
 			return err
 		}
-
 		subTaskExecutionRecord := &model.TaskExecutionRecord{
 			RecordID:       recordId,
 			TaskID:         taskId,
 			ClientUUID:     client,
-			Content:        subAction.Content,
+			Content:        pac.getTaskRecordContent(c, subAction),
 			ParentRecordID: parentRecordID,
 			Category:       "sub",
-			TaskType:       subAction.Name,
+			TaskType:       string(action.ActionType),
+			Name:           action.Name,
 			NextRecordID:   actionTemplate.NextTaskRecordId,
 			Status:         model.TaskStatusPreparing,
 		}
@@ -348,4 +350,22 @@ func (pac *ProgramActionController) createSubTaskExecutionRecords(c *app.Context
 
 	pac.TaskExecutionRecordService.UpdaterRecordContent(c, parentRecordID, taskContent)
 	return nil
+}
+
+func (pac *ProgramActionController) getTaskRecordContent(c *app.Context, action *model.ProgramAction) (r string) {
+	taskContent := model.TaskContent{
+		Type:    "program_script",
+		Content: action.Content,
+	}
+
+	if action.ActionType == model.ActionTypeDownload {
+		taskContent.Type = "program_download"
+	}
+
+	if action.ActionType == model.ActionTypeComposite {
+		taskContent.Type = "record"
+	}
+
+	b, _ := json.Marshal(taskContent)
+	return string(b)
 }

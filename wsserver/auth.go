@@ -64,6 +64,7 @@ func (wc *WsAuthController) HandlerRegister(ctx *Context) (err error) {
 	}
 	b1, _ := json.Marshal(hearBeat)
 
+	ctx.Logger.Info("HandlerRegiste msg: ", string(b1))
 	msg.Data = json.RawMessage(b1)
 	ctx.JSONSuccess(msg)
 	return

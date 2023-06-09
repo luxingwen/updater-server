@@ -72,3 +72,13 @@ type ReqTaskRecordeQuery struct {
 	TaskId    string   `json:"taskId"`
 	RecordIds []string `json:"recordIds"`
 }
+
+type ResTaskRecordItem struct {
+	RecordId   string `json:"recordId"`
+	ClientUuid string `json:"clientUuid"`
+}
+
+type ResTaskCreate struct {
+	TaskId  string              `json:"taskId"`
+	Records []ResTaskRecordItem `json:"records"`
+}

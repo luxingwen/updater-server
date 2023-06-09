@@ -30,6 +30,7 @@ type TaskExecutionRecord struct {
 	TaskID         string        `json:"taskId"`
 	ClientUUID     string        `json:"clientUuid"`
 	Category       string        `json:"category"` // 任务类别
+	Name           string        `json:"name"`
 	TaskType       string        `json:"taskType"`
 	Status         string        `json:"status"`
 	StartTime      time.Time     `json:"startTime"`
@@ -201,3 +202,20 @@ const (
 	TaskStatusCompleted = "Completed" // 完成
 	TaskStatusFailed    = "Failed"    // 失败
 )
+
+// DownloadRequest 是下载请求参数
+type DownloadRequest struct {
+	DownLoadPath     string `json:"downloadPath"`     // 下载路径
+	URL              string `json:"url"`              // 下载 URL
+	DestPath         string `json:"destPath"`         // 目标路径
+	AutoCreateDir    bool   `json:"autoCreateDir"`    // 是否自动创建文件夹
+	OverwriteExisted bool   `json:"overwriteExisted"` // 文件存在是否覆盖文件
+	Timeout          int    `json:"timeout"`          // 超时时间
+}
+
+type FileDownloadTask struct {
+	Content DownloadRequest `json:"content"`
+	Clients []string        `json:"clients"`
+	Name    string          `json:"name"`
+	Creater string          `json:"creater"`
+}
