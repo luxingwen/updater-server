@@ -102,7 +102,6 @@ func (tc *TaskController) CreateFileDownload(c *app.Context) {
 			c.JSONError(http.StatusInternalServerError, err.Error())
 			return
 		}
-
 	}
 
 }
