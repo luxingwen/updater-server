@@ -28,7 +28,7 @@ func main() {
 	})
 
 	serverApp.Router.GET("/swagger/index.html", func(c *gin.Context) {
-		b, err := ioutil.ReadFile("swagger.html") // Replace with your actual json file path
+		b, err := ioutil.ReadFile("./swagger/swagger.html") // Replace with your actual json file path
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

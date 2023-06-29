@@ -90,7 +90,7 @@ func (tc *TaskController) CreateFileDownload(c *app.Context) {
 			RecordID:   uuid.New().String(),
 			TaskID:     task.TaskID,
 			ClientUUID: item,
-			Content:    taskContentStr,
+			Content:    string(taskContentStr),
 			TaskType:   "file_download",
 			Name:       "",
 			Category:   "sub",
