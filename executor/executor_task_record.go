@@ -15,7 +15,7 @@ func (es *ExecutorServer) ExecuteTaskRecord(ctx *app.Context, task TaskExecItem)
 		return err
 	}
 
-	if recordInfo.Status == "completed" {
+	if recordInfo.Status == "completed" || recordInfo.Status == "failed" || recordInfo.Status == "success" {
 		if recordInfo.NextRecordID != "" {
 			// 下一个任务
 			nextTaskExecItem := TaskExecItem{

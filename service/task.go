@@ -30,6 +30,12 @@ func (ts *TaskService) UpdateTask(ctx *app.Context, updatedTask *model.Task) err
 	return result.Error
 }
 
+// 更新任务状态
+func (ts *TaskService) UpdateTaskStatus(ctx *app.Context, taskID string, status string) error {
+	result := ctx.DB.Model(&model.Task{}).Where("task_id = ?", taskID).Update("task_status", status)
+	return result.Error
+}
+
 func (ts *TaskService) UpdateTaskContent(ctx *app.Context, taskID string, content interface{}) error {
 
 	b, err := json.Marshal(content)
@@ -84,4 +90,69 @@ func (ts *TaskService) GetAllTasks(ctx *app.Context, query *model.ReqTaskQuery) 
 	}
 
 	return response, nil
+}
+
+// 检查任务状态，检查任务是否完成
+func (ts *TaskService) CheckTaskStatus(ctx *app.Context, taskID string) (bool, error) {
+	taskInfo, err := ts.GetTaskInfo(ctx, taskID)
+	if err != nil {
+		return false, err
+	}
+
+	if taskInfo.TaskStatus == "completed" || taskInfo.TaskStatus == "failed" || taskInfo.TaskStatus == "success" {
+		return true, nil
+	}
+
+	taskContent := &model.TaskContent{}
+
+	err = json.Unmarshal([]byte(taskInfo.Content), taskContent)
+	if err != nil {
+		ctx.Logger.Error("unmarshal task content error:", err)
+		return false, err
+	}
+
+	tcontent := taskContent.Content.([]model.TaskContentInfo)
+	if taskContent.Type == "task" {
+
+		for _, item := range tcontent {
+
+			isDone, err := ts.CheckTaskStatus(ctx, item.TaskID)
+			if err != nil {
+				return false, err
+			}
+
+			if !isDone {
+				return false, nil
+			}
+		}
+
+		// 跟新状态
+		err = ts.UpdateTaskStatus(ctx, taskID, "completed")
+		return true, nil
+	}
+
+	recordService := NewTaskExecutionRecordService()
+
+	if taskContent.Type == "record" {
+
+		for _, item := range tcontent {
+
+			isDone, err := recordService.CheckTaskStatus(ctx, item.TaskRecordId)
+			if err != nil {
+				return false, err
+			}
+
+			if !isDone {
+				return false, nil
+			}
+
+		}
+
+		// 更新状态
+		err = ts.UpdateTaskStatus(ctx, taskID, "completed")
+		return true, nil
+	}
+
+	return false, nil
+
 }

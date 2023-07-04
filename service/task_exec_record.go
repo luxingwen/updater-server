@@ -31,6 +31,12 @@ func (ts *TaskExecutionRecordService) GetRecordInfo(ctx *app.Context, recordID s
 	return &record, result.Error
 }
 
+// 更新任务状态
+func (ts *TaskExecutionRecordService) UpdateRecordStatus(ctx *app.Context, recordID string, status string) error {
+	result := ctx.DB.Model(&model.TaskExecutionRecord{}).Where("record_id = ?", recordID).Update("status", status)
+	return result.Error
+}
+
 func (ts *TaskExecutionRecordService) UpdaterRecordContent(ctx *app.Context, recordID string, content interface{}) error {
 	b, err := json.Marshal(content)
 	if err != nil {
@@ -74,4 +80,43 @@ func (ts *TaskExecutionRecordService) GetAllTaskExecRecords(ctx *app.Context, qu
 		Total: total,
 		Data:  records,
 	}, nil
+}
+
+// 检查任务状态，检查任务是否完成
+func (ts *TaskExecutionRecordService) CheckTaskStatus(ctx *app.Context, taskID string) (bool, error) {
+	recordInfo, err := ts.GetRecordInfo(ctx, taskID)
+	if err != nil {
+		return false, err
+	}
+	if recordInfo.Status == "completed" || recordInfo.Status == "failed" || recordInfo.Status == "success" {
+		return true, nil
+	}
+
+	taskContent := &model.TaskContent{}
+
+	err = json.Unmarshal([]byte(recordInfo.Content), taskContent)
+	if err != nil {
+		ctx.Logger.Error("unmarshal task content error:", err)
+		return false, err
+	}
+
+	tcontent := taskContent.Content.([]model.TaskContentInfo)
+
+	if taskContent.Type == "record" {
+		for _, item := range tcontent {
+			isDone, err := ts.CheckTaskStatus(ctx, item.TaskRecordId)
+			if err != nil {
+				return false, err
+			}
+			if !isDone {
+				return false, nil
+			}
+		}
+
+		// 跟新状态
+
+		err = ts.UpdateRecordStatus(ctx, taskID, "completed")
+		return true, nil
+	}
+	return false, nil
 }
