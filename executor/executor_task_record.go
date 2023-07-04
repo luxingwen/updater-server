@@ -15,6 +15,12 @@ func (es *ExecutorServer) ExecuteTaskRecord(ctx *app.Context, task TaskExecItem)
 		return err
 	}
 
+	// 如果状态是暂停、停止或者是运行中
+	if recordInfo.Status == "paused" || recordInfo.Status == "stopped" || recordInfo.Status == "running" {
+		return nil
+	}
+
+	// 如果任务状态是已经完成
 	if recordInfo.Status == "completed" || recordInfo.Status == "failed" || recordInfo.Status == "success" {
 		if recordInfo.NextRecordID != "" {
 			// 下一个任务
@@ -31,6 +37,7 @@ func (es *ExecutorServer) ExecuteTaskRecord(ctx *app.Context, task TaskExecItem)
 			}
 			return nil
 		}
+		return
 	}
 
 	taskContent := &model.TaskContent{}
@@ -60,5 +67,8 @@ func (es *ExecutorServer) ExecuteTaskRecord(ctx *app.Context, task TaskExecItem)
 
 	}
 
-	return
+	// 更新状态
+	err = es.TaskExecutionRecordService.UpdateRecordStatus(ctx, recordInfo.RecordID, "running")
+
+	return err
 }

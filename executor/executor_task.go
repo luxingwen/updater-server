@@ -15,8 +15,13 @@ func (es *ExecutorServer) ExecuteTask(ctx *app.Context, task TaskExecItem) (err 
 		return err
 	}
 
-	// 判断状态
-	if taskInfo.TaskStatus == "completed" {
+	// 如果状态是暂停、停止或者是运行中
+	if taskInfo.TaskStatus == "paused" || taskInfo.TaskStatus == "stopped" || taskInfo.TaskStatus == "running" {
+		return nil
+	}
+
+	// 判断状态是否完成
+	if taskInfo.TaskStatus == "completed" || recordInfo.Status == "failed" || recordInfo.Status == "success" {
 
 		if taskInfo.NextTaskID != "" {
 			// 下一个任务
@@ -46,11 +51,11 @@ func (es *ExecutorServer) ExecuteTask(ctx *app.Context, task TaskExecItem) (err 
 		return err
 	}
 
-	getTaskId := func(tInfo model.TaskContentInfo) string {
+	getTaskIdAndType := func(tInfo model.TaskContentInfo) (string, string) {
 		if tInfo.TaskID != "" {
-			return tInfo.TaskID
+			return tInfo.TaskID, "task"
 		}
-		return tInfo.TaskRecordId
+		return tInfo.TaskRecordId, "record"
 	}
 
 	tcontent := taskContent.Content.([]model.TaskContentInfo)
@@ -60,10 +65,11 @@ func (es *ExecutorServer) ExecuteTask(ctx *app.Context, task TaskExecItem) (err 
 
 		for _, tInfo := range tcontent {
 
+			taskID, taskType := getTaskIdAndType(tInfo)
 			taskExecItem := TaskExecItem{
-				TaskID:   getTaskId(tInfo),
+				TaskID:   taskID,
 				Category: taskContent.Type,
-				TaskType: "",
+				TaskType: taskType,
 			}
 
 			err = EnqueueTask(ctx, taskExecItem)
@@ -72,24 +78,29 @@ func (es *ExecutorServer) ExecuteTask(ctx *app.Context, task TaskExecItem) (err 
 				return err
 			}
 		}
-		return
+	} else {
+
+		taskContentInfo := tcontent[0]
+
+		// 任务执行
+		taskID, taskType := getTaskIdAndType(taskContentInfo)
+
+		taskExecItem := TaskExecItem{
+			TaskID:   taskID,
+			Category: taskContent.Type,
+			TaskType: taskType,
+		}
+
+		err = EnqueueTask(ctx, taskExecItem)
+		if err != nil {
+			ctx.Logger.Error("enqueue task error:", err)
+			return err
+		}
 	}
 
-	taskContentInfo := tcontent[0]
+	// 更新任务状态
 
-	// 任务执行
+	err = es.TaskService.UpdateTaskStatus(es.WsContext.AppContext(), task.TaskID, "running")
 
-	taskExecItem := TaskExecItem{
-		TaskID:   getTaskId(taskContentInfo),
-		Category: taskContent.Type,
-		TaskType: "",
-	}
-
-	err = EnqueueTask(ctx, taskExecItem)
-	if err != nil {
-		ctx.Logger.Error("enqueue task error:", err)
-		return err
-	}
-
-	return nil
+	return err
 }

@@ -11,7 +11,9 @@ import (
 )
 
 type ExecutorServer struct {
-	WsContext *wsserver.Context
+	WsContext                  *wsserver.Context
+	TaskService                *service.TaskService
+	TaskExecutionRecordService *service.TaskExecutionRecordService
 }
 
 const (
