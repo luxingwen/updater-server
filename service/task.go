@@ -10,6 +10,10 @@ import (
 
 type TaskService struct{}
 
+func NewTaskService() *TaskService {
+	return &TaskService{}
+}
+
 func (ts *TaskService) CreateTask(ctx *app.Context, task *model.Task) error {
 	tx := ctx.DB.Begin() // 开始事务
 	err := ctx.DB.Create(task).Error

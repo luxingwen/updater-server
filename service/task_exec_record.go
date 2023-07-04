@@ -10,6 +10,10 @@ import (
 
 type TaskExecutionRecordService struct{}
 
+func NewTaskExecutionRecordService() *TaskExecutionRecordService {
+	return &TaskExecutionRecordService{}
+}
+
 func (ts *TaskExecutionRecordService) CreateRecord(ctx *app.Context, record *model.TaskExecutionRecord) error {
 	result := ctx.DB.Create(record)
 	return result.Error
@@ -18,6 +22,13 @@ func (ts *TaskExecutionRecordService) CreateRecord(ctx *app.Context, record *mod
 func (ts *TaskExecutionRecordService) UpdateRecord(ctx *app.Context, updatedRecord *model.TaskExecutionRecord) error {
 	result := ctx.DB.Model(&model.TaskExecutionRecord{}).Where("record_id = ?", updatedRecord.RecordID).Updates(updatedRecord)
 	return result.Error
+}
+
+// 获取一条记录，根据recordID
+func (ts *TaskExecutionRecordService) GetRecordInfo(ctx *app.Context, recordID string) (*model.TaskExecutionRecord, error) {
+	var record model.TaskExecutionRecord
+	result := ctx.DB.Where("record_id = ?", recordID).First(&record)
+	return &record, result.Error
 }
 
 func (ts *TaskExecutionRecordService) UpdaterRecordContent(ctx *app.Context, recordID string, content interface{}) error {
