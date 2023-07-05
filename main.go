@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"updater-server/controller"
+	"updater-server/executor"
 	"updater-server/pkg/app"
 	"updater-server/pkg/config"
 	"updater-server/service"
@@ -139,6 +141,15 @@ func initWsserver(serverApp *app.App) {
 
 	serverApp.GET("/api/v1/ws/:uuid", wsController.Connect)
 	serverApp.POST("/api/v1/proxy/info", wsController.GetAllProxy)
+
+	executeServer := executor.ExecutorServer{
+		WsContext:                  wsContext,
+		TaskService:                &service.TaskService{},
+		TaskExecutionRecordService: &service.TaskExecutionRecordService{},
+		ClientService:              &service.ClientService{},
+	}
+
+	go executeServer.Worker(context.Background())
 
 }
 

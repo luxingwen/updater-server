@@ -147,6 +147,8 @@ func (s *ClientService) Register(ctx *app.Context, client *model.Client) error {
 	r.SN = client.SN
 	r.Updated = time.Now()
 	r.Status = "online"
+	r.ProxyID = client.ProxyID
+	ctx.Logger.Infof("client already registered, updating..., client: %v", r)
 
 	err = ctx.DB.Save(r).Error
 	return err

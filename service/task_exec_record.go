@@ -47,6 +47,12 @@ func (ts *TaskExecutionRecordService) UpdaterRecordContent(ctx *app.Context, rec
 	return result.Error
 }
 
+// 根据map更新记录
+func (ts *TaskExecutionRecordService) UpdateRecordByMap(ctx *app.Context, recordID string, data map[string]interface{}) error {
+	result := ctx.DB.Model(&model.TaskExecutionRecord{}).Where("record_id = ?", recordID).Updates(data)
+	return result.Error
+}
+
 func (ts *TaskExecutionRecordService) DeleteRecord(ctx *app.Context, recordID string) error {
 	var record model.TaskExecutionRecord
 	result := ctx.DB.Where("record_id = ?", recordID).Delete(&record)

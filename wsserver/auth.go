@@ -35,7 +35,7 @@ func (wc *WsAuthController) HandlerRegister(ctx *Context) (err error) {
 		ctx.Logger.Error("HandlerRegister: ", err)
 		msg := ctx.Message
 		msg.Data = nil
-		msg.To = msg.From
+		msg.To = clientInfo.UUID
 		msg.From = "server"
 		msg.Type = "v1/Register"
 		ctx.JSONError(CODE_ERROR, msg)
@@ -47,7 +47,7 @@ func (wc *WsAuthController) HandlerRegister(ctx *Context) (err error) {
 		ctx.Logger.Error("HandlerRegister: ", err)
 		msg := ctx.Message
 		msg.Data = nil
-		msg.To = msg.From
+		msg.To = clientInfo.UUID
 		msg.From = "server"
 		msg.Type = "v1/Register"
 		ctx.JSONError(CODE_ERROR, msg)
@@ -57,7 +57,7 @@ func (wc *WsAuthController) HandlerRegister(ctx *Context) (err error) {
 	ctx.Logger.Info("HandlerRegister client: ", string(b))
 	msg := ctx.Message
 	msg.Type = "v1/Register"
-	msg.To = msg.From
+	msg.To = clientInfo.UUID
 
 	hearBeat := &HeartBeatMsg{
 		Time: time.Now().Unix(),
@@ -67,5 +67,10 @@ func (wc *WsAuthController) HandlerRegister(ctx *Context) (err error) {
 	ctx.Logger.Info("HandlerRegiste msg: ", string(b1))
 	msg.Data = json.RawMessage(b1)
 	ctx.JSONSuccess(msg)
+
+	// err = ctx.SendRequest(client.Uuid, "v1/Register", hearBeat)
+	// if err != nil {
+	// 	ctx.Logger.Error("HandlerRegister: ", err)
+	// }
 	return
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	glogger "gorm.io/gorm/logger"
 )
 
 type App struct {
@@ -28,8 +29,26 @@ func NewApp() *App {
 	app.Config = config.GetConfig()
 	app.DB = db.GetDB(app.Config.MySQL)
 	app.Logger = logger.NewLogger(app.Config.LogConfig)
+
+	if app.Config.MySQL.ShowSQL && app.DB != nil {
+
+		gormLogger := glogger.New(
+			app.Logger,
+			glogger.Config{
+				LogLevel:                  glogger.Info,
+				IgnoreRecordNotFoundError: true, // 忽略记录未找到的错误
+				Colorful:                  true, // 使用彩色输出
+			},
+		)
+
+		app.DB.Logger = gormLogger
+	}
+
 	app.Router = gin.Default()
 
+	if app.Config.RedisConfig.Address != "" {
+		app.Redis = redisop.NewRedisClient(app.Config.RedisConfig.Address, app.Config.RedisConfig.Password, app.Config.RedisConfig.Database)
+	}
 	return app
 }
 

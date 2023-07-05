@@ -143,3 +143,14 @@ CREATE TABLE users (
   created_at TIMESTAMP NOT NULL,
   updated_at TIMESTAMP NOT NULL
 );
+
+
+
+ALTER TABLE tasks
+ADD COLUMN trace_id varchar(255) DEFAULT NULL,
+ADD INDEX idx_trace_id (trace_id);
+
+
+ALTER TABLE task_execution_records
+ADD COLUMN trace_id varchar(70) DEFAULT NULL,
+ADD INDEX idx_trace_id (trace_id);

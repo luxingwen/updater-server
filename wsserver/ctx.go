@@ -3,6 +3,7 @@ package wsserver
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"updater-server/pkg/app"
 	"updater-server/pkg/config"
 	"updater-server/pkg/logger"
@@ -63,24 +64,26 @@ func (ctx *Context) SendRequest(to string, typ string, req interface{}) (err err
 		Type:   typ,
 		To:     to,
 	}
+	ctx.Logger.Info("SendRequest:", to, typ)
 
 	clientService := &service.ClientService{}
 
 	client, err := clientService.GetClientByUUID(ctx.AppContext(), to)
 	if err != nil {
-		ctx.Logger.Error(err)
+		ctx.Logger.Error("get client err:", err)
 		return
 	}
 
 	if client == nil {
 		ctx.Logger.Error("client not found")
+		err = fmt.Errorf("client not found:%s", to)
 		return
 	}
 
 	clientPorxy, err := ctx.Proxy.GetProxy(client.ProxyID)
 
 	if err != nil {
-		ctx.Logger.Error(err)
+		ctx.Logger.Error("get proxy err:", err)
 		return
 	}
 

@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"net/http"
+	"updater-server/executor"
 	"updater-server/model"
 	"updater-server/pkg/app"
 	"updater-server/service"
@@ -251,6 +252,13 @@ func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 		c.JSONError(http.StatusInternalServerError, err.Error())
 		return
 	}
+
+	executor.EnqueueTask(c, executor.TaskExecItem{
+		TaskID:   task.TaskID,
+		Category: "task",
+		TaskType: "root",
+		TraceId:  c.TraceID,
+	})
 
 	c.JSONSuccess(task)
 }

@@ -20,6 +20,7 @@ type Task struct {
 	TeamID       string    `json:"teamId"`       // 团队ID
 	NextTaskID   string    `json:"nextTaskId"`   // 下一个任务ID
 	Ext          string    `json:"ext"`          // 扩展字段
+	TraceId      string    `json:"traceId"`      // 跟踪id
 	CreatedAt    time.Time `gorm:"column:created_at" json:"created"`
 	UpdatedAt    time.Time `gorm:"column:updated_at" json:"updated"`
 }
@@ -44,6 +45,7 @@ type TaskExecutionRecord struct {
 	Timeout        time.Duration `json:"timeout"`        // 任务超时时间
 	ParentRecordID string        `json:"parentRecordId"` // 父任务执行记录ID
 	NextRecordID   string        `json:"nextRecordId"`   // 下一个任务执行记录ID
+	TraceId        string        `json:"traceId"`        // 跟踪id
 	CreatedAt      time.Time     `gorm:"column:created_at" json:"created"`
 	UpdatedAt      time.Time     `gorm:"column:updated_at" json:"updated"`
 }

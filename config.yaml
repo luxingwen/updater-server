@@ -15,3 +15,9 @@ MySQL:
   Username: "root"
   Password: "root"
   Database: "updater"
+  ShowSQL: true
+
+RedisConfig:
+  Address: "localhost:6379"
+  Password: ""
+  Database: 0

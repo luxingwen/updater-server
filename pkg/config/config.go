@@ -8,10 +8,11 @@ import (
 )
 
 type Config struct {
-	ServerPort string
-	LogConfig  LogConfig
-	MySQL      MySQLConfig
-	PkgFileDir string
+	ServerPort  string
+	LogConfig   LogConfig
+	MySQL       MySQLConfig
+	PkgFileDir  string
+	RedisConfig RedisConfig
 }
 
 type LogConfig struct {
@@ -21,7 +22,8 @@ type LogConfig struct {
 	MaxAge       int  // 最大文件保留天数
 	Compress     bool // 是否压缩
 	Filename     string
-	ResponseSize int // 字节
+	ResponseSize int  // 字节
+	ShowConsole  bool // 是否显示在控制台
 }
 
 type MySQLConfig struct {
@@ -30,6 +32,13 @@ type MySQLConfig struct {
 	Username string
 	Password string
 	Database string
+	ShowSQL  bool
+}
+
+type RedisConfig struct {
+	Address  string // 地址, 多个使用逗号(,)分隔
+	Password string
+	Database int
 }
 
 var (

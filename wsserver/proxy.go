@@ -3,6 +3,7 @@ package wsserver
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/google/uuid"
@@ -81,14 +82,18 @@ func (pc *ProxyClient) Start() {
 }
 
 func (pc *ProxyClient) Send(msg []byte) {
+	fmt.Println("send message:", string(msg))
 	if pc.Connected {
 		pc.send <- msg
+	} else {
+		fmt.Println("client not connected")
 	}
 }
 
 func (pc *ProxyClient) SendMessage(msg *Message) (err error) {
 
 	if msg.To == "" {
+		fmt.Println("target client is empty")
 		err = errors.New("target client is empty")
 		return
 	}
@@ -99,6 +104,7 @@ func (pc *ProxyClient) SendMessage(msg *Message) (err error) {
 
 	jsonMsg, err := json.Marshal(msg)
 	if err != nil {
+		fmt.Println("SendMessage json marshal error:", err)
 		return
 	}
 	pc.Send(jsonMsg)
@@ -113,6 +119,7 @@ type ProxyManager struct {
 func NewProxyManager() *ProxyManager {
 	return &ProxyManager{
 		ProxyClients: make(map[string]*ProxyClient),
+		mu:           sync.Mutex{},
 	}
 }
 

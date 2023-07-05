@@ -7,6 +7,7 @@ import (
 	"log"
 	"reflect"
 	"runtime"
+	"runtime/debug"
 	"time"
 )
 
@@ -23,8 +24,8 @@ type Message struct {
 	From     string          `json:"from"`
 	To       string          `json:"to"`
 	Id       string          `json:"id"`
-	Type     string          `json:"type"`
-	Method   string          `json:"method"`
+	Type     string          `json:"type"`   // 消息类型，注册在客户端的路由函数
+	Method   string          `json:"method"` // 消息方法，request/response
 	Data     json.RawMessage `json:"data"`
 	Code     string          `json:"code"`
 	Msg      string          `json:"msg"` // 新增 Msg 字段
@@ -71,7 +72,7 @@ func (h *MessageHandler) HandleMessages(client *ProxyClient, numWorkers int) {
 		go func() {
 			defer func() {
 				if r := recover(); r != nil {
-					log.Printf("Recovered from panic in HandleMessages: %v", r)
+					log.Printf("Recovered from panic in HandleMessages: %v\n%s", r, debug.Stack())
 				}
 			}()
 
@@ -93,6 +94,7 @@ func (h *MessageHandler) HandleMessages(client *ProxyClient, numWorkers int) {
 					DB:      h.Context.DB,
 					Logger:  h.Context.Logger,
 					Config:  h.Context.Config,
+					Proxy:   h.Context.Proxy,
 				}
 
 				if handler, ok := h.handlers[msg.Type]; ok {
@@ -101,7 +103,7 @@ func (h *MessageHandler) HandleMessages(client *ProxyClient, numWorkers int) {
 						log.Printf("Error handling message: %s", err)
 					}
 				} else {
-					log.Printf("No handler registered for message type: %s", msg.Type)
+					log.Printf("No handler registered for message type: %s, msg:%v", msg.Type, msg)
 				}
 			}
 		}()
