@@ -2,6 +2,7 @@ package wsserver
 
 import (
 	"encoding/json"
+	"log"
 	"time"
 	"updater-server/model"
 	"updater-server/service"
@@ -18,6 +19,8 @@ func (wc *WsAuthController) HandlerRegister(ctx *Context) (err error) {
 		ctx.Logger.Error("ClientHeartBeat: ", err)
 		return
 	}
+
+	log.Println("HandlerRegister ctx client uuid: ", ctx.Client.UUID)
 
 	client := &model.Client{
 		Uuid:     clientInfo.UUID,

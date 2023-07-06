@@ -149,6 +149,8 @@ func initWsserver(serverApp *app.App) {
 		ClientService:              &service.ClientService{},
 	}
 
+	wsController.MessageHandler.RegisterHandler("v1/ExecuteScript", executeServer.HandleResScript)
+
 	go executeServer.Worker(context.Background())
 
 }

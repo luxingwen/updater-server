@@ -67,16 +67,19 @@ func (h *MessageHandler) PrintRegisteredHandlers() {
 	fmt.Println("------------------------")
 }
 
-func (h *MessageHandler) HandleMessages(client *ProxyClient, numWorkers int) {
+func (h *MessageHandler) HandleMessages(client0 *ProxyClient, numWorkers int) {
+
+	log.Println("HandleMessages: numWorkers:", numWorkers, "uuid:", client0.UUID)
+
 	for i := 0; i < numWorkers; i++ {
-		go func() {
+		go func(client *ProxyClient) {
 			defer func() {
 				if r := recover(); r != nil {
 					log.Printf("Recovered from panic in HandleMessages: %v\n%s", r, debug.Stack())
 				}
 			}()
 
-			for msg := range h.in {
+			for msg := range client0.MsgIn {
 				ctx := context.Background()
 				if msg.Timeout > 0 {
 					ctx, _ = context.WithTimeout(ctx, msg.Timeout)
@@ -84,6 +87,7 @@ func (h *MessageHandler) HandleMessages(client *ProxyClient, numWorkers int) {
 
 				ctxWithCancel, cancel := context.WithCancel(ctx)
 
+				//log.Println("HandleMessages: msg:", msg, "uuid:", client.UUID)
 				context := &Context{
 					Client:  client,
 					Message: msg,
@@ -106,7 +110,7 @@ func (h *MessageHandler) HandleMessages(client *ProxyClient, numWorkers int) {
 					log.Printf("No handler registered for message type: %s, msg:%v", msg.Type, msg)
 				}
 			}
-		}()
+		}(client0)
 	}
 }
 

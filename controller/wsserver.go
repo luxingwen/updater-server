@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"updater-server/pkg/app"
 	"updater-server/wsserver"
 
@@ -17,11 +18,13 @@ func (ws *WsController) Connect(c *app.Context) {
 	conn, err := websocket.Upgrade(c.Writer, c.Request, nil, 1024, 1024)
 	if err != nil {
 		// Handle the error
+		log.Println("upgrade error:", err)
 		return
 	}
 
 	client := wsserver.NewProxyClient(conn, ws.MessageHandler, uid)
 
+	//log.Println("new client:", client.UUID)
 	client.MessageHandler.Context.Proxy.AddClient(client)
 	client.Connected = true
 	go client.Start()

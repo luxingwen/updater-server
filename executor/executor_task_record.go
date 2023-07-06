@@ -7,6 +7,7 @@ import (
 	"updater-server/model"
 	"updater-server/pkg/app"
 	"updater-server/service"
+	"updater-server/wsserver"
 )
 
 // 执行任务记录
@@ -210,4 +211,40 @@ func (es *ExecutorServer) ExecuteTaskRecordFailed(ctx *app.Context, recordInfo *
 		return
 	}
 	return err
+}
+
+type ScriptResult struct {
+	TaskID    string    `json:"task_id"`
+	Code      string    `json:"code"`
+	Stdout    string    `json:"stdout"`
+	Stderr    string    `json:"stderr"`
+	Error     string    `json:"error"`
+	ExitCode  int       `json:"exit_code"`
+	StartTime time.Time `json:"start_time"`
+	EndTime   time.Time `json:"end_time"`
+}
+
+func (es *ExecutorServer) HandleResScript(ctx *wsserver.Context) (err error) {
+	var scriptRes ScriptResult
+	err = json.Unmarshal(ctx.Message.Data, &scriptRes)
+	if err != nil {
+		ctx.Logger.Error("ClientHeartBeat: ", err)
+		return
+	}
+
+	ctx.Logger.Info("script result:", scriptRes)
+	mdata := make(map[string]interface{})
+	mdata["status"] = "completed"
+	mdata["message"] = scriptRes.Error
+	mdata["start_time"] = scriptRes.StartTime
+	mdata["end_time"] = scriptRes.EndTime
+	mdata["script_exit_code"] = scriptRes.ExitCode
+	mdata["stdout"] = scriptRes.Stdout
+	mdata["stderr"] = scriptRes.Stderr
+	err = es.TaskExecutionRecordService.UpdateRecordByMap(ctx.AppContext(), scriptRes.TaskID, mdata)
+	if err != nil {
+		ctx.Logger.Error("update record error:", err)
+		return
+	}
+	return
 }
