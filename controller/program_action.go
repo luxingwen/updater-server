@@ -22,6 +22,15 @@ type ProgramActionController struct {
 	TaskExecutionRecordService *service.TaskExecutionRecordService
 }
 
+// 获取程序动作
+// @Tags program_action
+// @Summary 获取程序动作
+// @Description 获取程序动作
+// @Accept json
+// @Produce json
+// @Param query body model.ProgramAction true "查询参数"
+// @Success 200 {object} app.Response "Success"
+// @Router /v1/program_action/info [post]
 func (pac *ProgramActionController) GetProgramActionByUUID(c *app.Context) {
 
 	var query model.ProgramAction
@@ -40,6 +49,15 @@ func (pac *ProgramActionController) GetProgramActionByUUID(c *app.Context) {
 	c.JSONSuccess(action)
 }
 
+// 获取程序所有动作
+// @Tags program_action
+// @Summary 获取程序所有动作
+// @Description 获取程序所有动作
+// @Accept json
+// @Produce json
+// @Param query body model.ReqProgramActionQuery true "查询参数"
+// @Success 200 {object} app.Response "Success"
+// @Router /v1/program_action/list [post]
 func (pac *ProgramActionController) GetAllProgramActions(c *app.Context) {
 	var query model.ReqProgramActionQuery
 
@@ -59,6 +77,15 @@ func (pac *ProgramActionController) GetAllProgramActions(c *app.Context) {
 	c.JSONSuccess(actions)
 }
 
+// 创建程序动作
+// @Tags program_action
+// @Summary 创建程序动作
+// @Description 创建程序动作
+// @Accept json
+// @Produce json
+// @Param query body model.ProgramAction true "查询参数"
+// @Success 200 {object} app.Response "Success"
+// @Router /v1/program_action/create [post]
 func (pac *ProgramActionController) CreateProgramAction(c *app.Context) {
 	var action model.ProgramAction
 	if err := c.ShouldBindJSON(&action); err != nil {
@@ -75,6 +102,15 @@ func (pac *ProgramActionController) CreateProgramAction(c *app.Context) {
 	c.JSONSuccess(action)
 }
 
+// 更新程序动作
+// @Tags program_action
+// @Summary 更新程序动作
+// @Description 更新程序动作
+// @Accept json
+// @Produce json
+// @Param query body model.ProgramAction true "查询参数"
+// @Success 200 {object} app.Response "Success"
+// @Router /v1/program_action/update [post]
 func (pac *ProgramActionController) UpdateProgramAction(c *app.Context) {
 	var updatedAction model.ProgramAction
 	uuid := c.Param("uuid")
@@ -92,6 +128,15 @@ func (pac *ProgramActionController) UpdateProgramAction(c *app.Context) {
 	c.JSONSuccess(updatedAction)
 }
 
+// 删除程序动作
+// @Tags program_action
+// @Summary 删除程序动作
+// @Description 删除程序动作
+// @Accept json
+// @Produce json
+// @Param uuid path string true "程序动作uuid"
+// @Success 200 {object} app.Response "Success"
+// @Router /v1/program_action/delete/{uuid} [post]
 func (pac *ProgramActionController) DeleteProgramAction(c *app.Context) {
 	uuid := c.Param("uuid")
 	err := pac.Service.DeleteProgramAction(c, uuid)
@@ -102,6 +147,15 @@ func (pac *ProgramActionController) DeleteProgramAction(c *app.Context) {
 	c.JSONSuccess(gin.H{"message": "Program Action deleted successfully"})
 }
 
+// 创建程序动作执行任务
+// @Tags program_action
+// @Summary 创建程序动作执行任务
+// @Description 创建程序动作执行任务
+// @Accept json
+// @Produce json
+// @Param actionTask body model.ReqTaskProgramAction true "创建参数"
+// @Success 200 {object} app.Response "Success"
+// @Router /v1/program_action/create_action_task [post]
 func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 	var actionTask *model.ReqTaskProgramAction
 	if err := c.ShouldBindJSON(&actionTask); err != nil {

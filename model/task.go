@@ -69,6 +69,11 @@ type TaskBatchesInfo struct {
 	Clients    []string `json:"clients"`
 }
 
+type TaskContentInDB struct {
+	Type    string `json:"type"`
+	Content string `json:"content"`
+}
+
 func (self BatchTask) GenerateTaskBatchesInfo(clients []string) (r []TaskBatchesInfo) {
 	bs := self.GetBatchesList(len(clients))
 	for i := 0; i < len(bs); i++ {

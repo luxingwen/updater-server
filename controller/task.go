@@ -15,6 +15,15 @@ type TaskController struct {
 	TaskExecutionRecordService *service.TaskExecutionRecordService
 }
 
+// 查询任务
+// @Tags task
+// @Summary 查询任务
+// @Description 查询任务
+// @Accept json
+// @Produce json
+// @Param query body model.ReqTaskQuery true "查询参数"
+// @Success 200 {object} app.Response "Success"
+// @Router /v1/task/list [post]
 func (tc *TaskController) QueryTasks(c *app.Context) {
 	var query model.ReqTaskQuery
 	if err := c.ShouldBindJSON(&query); err != nil {
@@ -30,6 +39,15 @@ func (tc *TaskController) QueryTasks(c *app.Context) {
 	c.JSONSuccess(r)
 }
 
+// 获取任务信息
+// @Tags task
+// @Summary 获取任务信息
+// @Description 获取任务信息
+// @Accept json
+// @Produce json
+// @Param query body model.ReqTaskInfoParam true "查询参数"
+// @Success 200 {object} app.Response "Success"
+// @Router /v1/task/info [post]
 func (tc *TaskController) GetTaskInfo(c *app.Context) {
 	var query model.Task
 	if err := c.ShouldBindJSON(&query); err != nil {
@@ -43,6 +61,44 @@ func (tc *TaskController) GetTaskInfo(c *app.Context) {
 		return
 	}
 	c.JSONSuccess(r)
+}
+
+// 创建单个任务
+// @Tags task
+// @Summary 创建单个任务
+// @Description 创建单个任务
+// @Accept json
+// @Produce json
+// @Param task body model.ReqTaskSingleCreate true "任务信息"
+// @Success 200 {string} app.Response "Success"
+// @Router /v1/task/create/single [post]
+func (tc *TaskController) CreateSingleTask(c *app.Context) {
+
+}
+
+// 创建多个任务
+// @Tags task
+// @Summary 创建多个任务
+// @Description 创建多个任务
+// @Accept json
+// @Produce json
+// @Param task body model.ReqTaskMultiCreate true "任务信息"
+// @Success 200 {string} app.Response "Success"
+// @Router /v1/task/create/multiple [post]
+func (tc *TaskController) CreateMultipleTask(c *app.Context) {
+
+}
+
+// 创建批次任务
+// @Tags task
+// @Summary 创建批次任务
+// @Description 创建批次任务
+// @Accept json
+// @Produce json
+// @Param task body model.ReqTaskBatchCreate true "任务信息"
+// @Success 200 {string} app.Response "Success"
+// @Router /v1/task/create/batch [post]
+func (tc *TaskController) CreateBatchTask(c *app.Context) {
 }
 
 func (tc *TaskController) CreateFileDownload(c *app.Context) {

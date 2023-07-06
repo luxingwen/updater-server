@@ -82,6 +82,19 @@ func (ts *TaskExecutionRecordService) GetAllTaskExecRecords(ctx *app.Context, qu
 		return nil, result.Error
 	}
 
+	for _, item := range records {
+		if item.Status == "running" {
+			isDone, err := ts.CheckTaskStatus(ctx, item.RecordID)
+			if err != nil {
+				return nil, err
+			}
+			if isDone {
+				item.Status = "completed"
+				ts.UpdateRecordStatus(ctx, item.RecordID, "completed")
+			}
+		}
+	}
+
 	return &model.PagedResponse{
 		Total: total,
 		Data:  records,
@@ -98,7 +111,7 @@ func (ts *TaskExecutionRecordService) CheckTaskStatus(ctx *app.Context, taskID s
 		return true, nil
 	}
 
-	taskContent := &model.TaskContent{}
+	taskContent := &model.TaskContentInDB{}
 
 	err = json.Unmarshal([]byte(recordInfo.Content), taskContent)
 	if err != nil {
@@ -106,9 +119,14 @@ func (ts *TaskExecutionRecordService) CheckTaskStatus(ctx *app.Context, taskID s
 		return false, err
 	}
 
-	tcontent := taskContent.Content.([]model.TaskContentInfo)
-
 	if taskContent.Type == "record" {
+		tcontent := make([]model.TaskContentInfo, 0)
+
+		err = json.Unmarshal([]byte(taskContent.Content), &tcontent)
+		if err != nil {
+			ctx.Logger.Error("unmarshal task content error:", err)
+			return false, err
+		}
 		for _, item := range tcontent {
 			isDone, err := ts.CheckTaskStatus(ctx, item.TaskRecordId)
 			if err != nil {

@@ -77,3 +77,13 @@ func (wc *WsAuthController) HandlerRegister(ctx *Context) (err error) {
 	// }
 	return
 }
+
+// 客户端离线
+func (wc *WsAuthController) HandleClientOffline(ctx *Context) (err error) {
+	err = wc.ClientService.UpdateClientStatus(ctx.AppContext(), ctx.Message.From, "offline")
+	if err != nil {
+		ctx.Logger.Error("HandleClientOffline: ", err)
+		return
+	}
+	return
+}

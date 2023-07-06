@@ -13,14 +13,15 @@ type VersionController struct {
 	Service *service.VersionService
 }
 
-// @summary Get all versions
-// @description Get all versions
-// @tags version
-// @accept json
-// @produce json
-// @param version query string false "name of the version to get"
-// @param programId query string false "programId of the version to get"
-// @router /v1/version/list [post]
+// 获取所有版本信息
+// @Tags version
+// @Summary 获取所有版本信息
+// @Description 获取所有版本信息
+// @Accept json
+// @Produce json
+// @Param query body model.ReqVersionQuery true "查询参数"
+// @Success 200 {object} app.Response "Success"
+// @Router /v1/version/list [post]
 func (vc *VersionController) GetAllVersions(c *app.Context) {
 	// Implementation goes here...
 
@@ -39,13 +40,15 @@ func (vc *VersionController) GetAllVersions(c *app.Context) {
 	c.JSONSuccess(response)
 }
 
-// @summary Get version by UUID
-// @description Get version by UUID
-// @tags version
-// @accept json
-// @produce json
-// @param uuid path string true "UUID of the version to get"
-// @router /v1/version/get/{uuid} [post]
+// 获取版本详细信息
+// @Tags version
+// @Summary 获取版本详细信息
+// @Description 获取版本详细信息
+// @Accept json
+// @Produce json
+// @Param query body model.Version true "查询参数"
+// @Success 200 {object} app.Response "Success"
+// @Router /v1/version/info [post]
 func (vc *VersionController) GetVersionByUUID(c *app.Context) {
 	// Implementation goes here...
 
@@ -65,13 +68,15 @@ func (vc *VersionController) GetVersionByUUID(c *app.Context) {
 	c.JSONSuccess(response)
 }
 
-// @summary Create version
-// @description Create new version
-// @tags version
-// @accept json
-// @produce json
-// @param body body model.Version true "version object that needs to be added"
-// @router /v1/version/create [post]
+// 创建版本
+// @Tags version
+// @Summary 创建版本
+// @Description 创建版本
+// @Accept json
+// @Produce json
+// @Param body body model.Version true "version object that needs to be added"
+// @Success 200 {object} app.Response "Success"
+// @Router /v1/version/create [post]
 func (vc *VersionController) CreateVersion(c *app.Context) {
 	// Implementation goes here...
 
@@ -90,14 +95,15 @@ func (vc *VersionController) CreateVersion(c *app.Context) {
 	c.JSONSuccess(version)
 }
 
-// @summary Update version
-// @description Update existing version
-// @tags version
-// @accept json
-// @produce json
-// @param uuid path string true "UUID of the version to update"
-// @param body body model.Version true "version object that needs to be updated"
-// @router /v1/version/update/{uuid} [post]
+// 更新版本
+// @Tags version
+// @Summary 更新版本
+// @Description 更新版本
+// @Accept json
+// @Produce json
+// @Param body body model.Version true "version object that needs to be updated"
+// @Success 200 {object} app.Response "Success"
+// @Router /v1/version/update [post]
 func (vc *VersionController) UpdateVersion(c *app.Context) {
 	// Implementation goes here...
 
@@ -116,13 +122,15 @@ func (vc *VersionController) UpdateVersion(c *app.Context) {
 	c.JSONSuccess(updatedVersion)
 }
 
-// @summary Delete version
-// @description Delete version by UUID
-// @tags version
-// @accept json
-// @produce json
-// @param uuid path string true "UUID of the version to delete"
-// @router /v1/version/delete/{uuid} [post]
+// 删除版本
+// @Tags version
+// @Summary 删除版本
+// @Description 删除版本
+// @Accept json
+// @Produce json
+// @Param body body model.Version true "version object that needs to be deleted"
+// @Success 200 {object} app.Response "Success"
+// @Router /v1/version/delete [post]
 func (vc *VersionController) DeleteVersion(c *app.Context) {
 	var query model.Version
 
