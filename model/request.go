@@ -49,6 +49,10 @@ type ReqTaskInfoParam struct {
 	TaskId string `json:"taskId"`
 }
 
+type TaskRecordInfoParam struct {
+	RecordId string `json:"recordId"`
+}
+
 type ReqClientQuery struct {
 	Pagination
 	Uuid     string `json:"uuid"`

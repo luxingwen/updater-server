@@ -114,6 +114,15 @@ func (pc *ProgramController) UpdateProgram(c *app.Context) {
 	c.JSONSuccess(updatedProgram)
 }
 
+// 获取程序详情信息
+// @Tags program
+// @Summary 获取程序详情信息
+// @Description 获取程序详情信息
+// @Accept json
+// @Produce json
+// @Param query body model.ReqProgrameQuery true "查询参数"
+// @Success 200 {object} app.Response "Success"
+// @Router /api/v1/program/detail [post]
 func (pc *ProgramController) GetProgramDetail(c *app.Context) {
 	var query model.ReqProgrameQuery
 	if err := c.ShouldBindJSON(&query); err != nil {

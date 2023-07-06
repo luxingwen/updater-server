@@ -19,6 +19,7 @@ type TaskExecRecordController struct {
 // @Produce json
 // @Param query body model.ReqTaskRecordeQuery true "查询参数"
 // @Success 200 {object} app.Response "Success"
+// @Router /v1/task_exec_record/list [post]
 func (tcr *TaskExecRecordController) QueryTaskExecRecords(c *app.Context) {
 	var query model.ReqTaskRecordeQuery
 	if err := c.ShouldBindJSON(&query); err != nil {
@@ -27,6 +28,30 @@ func (tcr *TaskExecRecordController) QueryTaskExecRecords(c *app.Context) {
 	}
 
 	r, err := tcr.Service.GetAllTaskExecRecords(c, &query)
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSONSuccess(r)
+}
+
+// 获取任务执行记录信息
+// @Tags task_exec_record
+// @Summary 获取任务执行记录信息
+// @Description 获取任务执行记录信息
+// @Accept json
+// @Produce json
+// @Param query body model.TaskRecordInfoParam true "查询参数"
+// @Success 200 {object} app.Response "Success"
+// @Router /v1/task_exec_record/info [post]
+func (tcr *TaskExecRecordController) GetTaskExecRecordInfo(c *app.Context) {
+	var query model.TaskRecordInfoParam
+	if err := c.ShouldBindJSON(&query); err != nil {
+		c.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	r, err := tcr.Service.GetRecordInfo(c, query.RecordId)
 	if err != nil {
 		c.JSONError(http.StatusInternalServerError, err.Error())
 		return
