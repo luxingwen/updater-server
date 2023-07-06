@@ -24,7 +24,7 @@ type PackageController struct {
 // @Produce json
 // @Param query body model.ReqPackageQuery true "查询参数"
 // @Success 200 {object} app.Response "Success"
-// @Router /v1/packages/list [post]
+// @Router /api/v1/program/package/list [post]
 func (pc *PackageController) GetAllPackages(c *app.Context) {
 	var query model.ReqPackageQuery
 	if err := c.ShouldBindJSON(&query); err != nil {
@@ -49,7 +49,7 @@ func (pc *PackageController) GetAllPackages(c *app.Context) {
 // @Produce json
 // @Param Package body model.Package true "Package data"
 // @Success 200 {object} app.Response "Success"
-// @Router /v1/packages/create [post]
+// @Router /api/v1/program/package/create [post]
 func (pc *PackageController) CreatePackage(c *app.Context) {
 	var mpackage model.Package
 	if err := c.ShouldBindJSON(&mpackage); err != nil {
@@ -75,7 +75,7 @@ func (pc *PackageController) CreatePackage(c *app.Context) {
 // @Produce json
 // @Param Package body model.Package true "Package data"
 // @Success 200 {object} app.Response "Success"
-// @Router /v1/packages/update/{id} [post]
+// @Router /api/v1/program/package/update/{id} [post]
 func (pc *PackageController) UpdatePackage(c *app.Context) {
 	var updatedPackage model.Package
 	id := c.Param("id")
@@ -101,7 +101,7 @@ func (pc *PackageController) UpdatePackage(c *app.Context) {
 // @Produce json
 // @Param id path string true "Package ID"
 // @Success 200 {object} app.Response "Success"
-// @Router /v1/packages/delete/{id} [post]
+// @Router /api/v1/program/package/delete/{id} [post]
 func (pc *PackageController) DeletePackage(c *app.Context) {
 	id := c.Param("id")
 	err := pc.Service.DeletePackage(c, id)
@@ -156,7 +156,7 @@ func (pc *PackageController) UploadFile(c *app.Context) {
 // @Produce json
 // @Param query body model.ReqDeletePackageFile true "File Name"
 // @Success 200 {object} app.Response "Success"
-// @Router /v1/packages/deleteFile/{programUuid} [post]
+// @Router /api/v1/program/package/file/delete/{programUuid} [post]
 func (pc *PackageController) DeleteFile(c *app.Context) {
 	programUuid := c.Param("programUuid")
 

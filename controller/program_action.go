@@ -30,7 +30,7 @@ type ProgramActionController struct {
 // @Produce json
 // @Param query body model.ProgramAction true "查询参数"
 // @Success 200 {object} app.Response "Success"
-// @Router /v1/program_action/info [post]
+// @Router /api/v1/program/action/detail [post]
 func (pac *ProgramActionController) GetProgramActionByUUID(c *app.Context) {
 
 	var query model.ProgramAction
@@ -57,7 +57,7 @@ func (pac *ProgramActionController) GetProgramActionByUUID(c *app.Context) {
 // @Produce json
 // @Param query body model.ReqProgramActionQuery true "查询参数"
 // @Success 200 {object} app.Response "Success"
-// @Router /v1/program_action/list [post]
+// @Router /api/v1/program/action/list [post]
 func (pac *ProgramActionController) GetAllProgramActions(c *app.Context) {
 	var query model.ReqProgramActionQuery
 
@@ -83,9 +83,9 @@ func (pac *ProgramActionController) GetAllProgramActions(c *app.Context) {
 // @Description 创建程序动作
 // @Accept json
 // @Produce json
-// @Param query body model.ProgramAction true "查询参数"
+// @Param query body model.ProgramAction true "创建参数"
 // @Success 200 {object} app.Response "Success"
-// @Router /v1/program_action/create [post]
+// @Router /api/v1/program/action/create [post]
 func (pac *ProgramActionController) CreateProgramAction(c *app.Context) {
 	var action model.ProgramAction
 	if err := c.ShouldBindJSON(&action); err != nil {
@@ -110,7 +110,7 @@ func (pac *ProgramActionController) CreateProgramAction(c *app.Context) {
 // @Produce json
 // @Param query body model.ProgramAction true "查询参数"
 // @Success 200 {object} app.Response "Success"
-// @Router /v1/program_action/update [post]
+// @Router /api/v1/program/action/update [post]
 func (pac *ProgramActionController) UpdateProgramAction(c *app.Context) {
 	var updatedAction model.ProgramAction
 	uuid := c.Param("uuid")
@@ -136,7 +136,7 @@ func (pac *ProgramActionController) UpdateProgramAction(c *app.Context) {
 // @Produce json
 // @Param uuid path string true "程序动作uuid"
 // @Success 200 {object} app.Response "Success"
-// @Router /v1/program_action/delete/{uuid} [post]
+// @Router /api/v1/program/action/delete/{uuid} [post]
 func (pac *ProgramActionController) DeleteProgramAction(c *app.Context) {
 	uuid := c.Param("uuid")
 	err := pac.Service.DeleteProgramAction(c, uuid)
@@ -153,9 +153,9 @@ func (pac *ProgramActionController) DeleteProgramAction(c *app.Context) {
 // @Description 创建程序动作执行任务
 // @Accept json
 // @Produce json
-// @Param actionTask body model.ReqTaskProgramAction true "创建参数"
+// @Param actionTask body model.ReqTaskProgramAction true "创建任务参数"
 // @Success 200 {object} app.Response "Success"
-// @Router /v1/program_action/create_action_task [post]
+// @Router /api/v1/program/action/execute [post]
 func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 	var actionTask *model.ReqTaskProgramAction
 	if err := c.ShouldBindJSON(&actionTask); err != nil {

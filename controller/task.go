@@ -23,7 +23,7 @@ type TaskController struct {
 // @Produce json
 // @Param query body model.ReqTaskQuery true "查询参数"
 // @Success 200 {object} app.Response "Success"
-// @Router /v1/task/list [post]
+// @Router /api/v1/task/list [post]
 func (tc *TaskController) QueryTasks(c *app.Context) {
 	var query model.ReqTaskQuery
 	if err := c.ShouldBindJSON(&query); err != nil {
@@ -47,7 +47,7 @@ func (tc *TaskController) QueryTasks(c *app.Context) {
 // @Produce json
 // @Param query body model.ReqTaskInfoParam true "查询参数"
 // @Success 200 {object} app.Response "Success"
-// @Router /v1/task/info [post]
+// @Router /api/v1/task/info [post]
 func (tc *TaskController) GetTaskInfo(c *app.Context) {
 	var query model.Task
 	if err := c.ShouldBindJSON(&query); err != nil {
@@ -71,7 +71,7 @@ func (tc *TaskController) GetTaskInfo(c *app.Context) {
 // @Produce json
 // @Param task body model.ReqTaskSingleCreate true "任务信息"
 // @Success 200 {string} app.Response "Success"
-// @Router /v1/task/create/single [post]
+// @Router /api/v1/task/create/single [post]
 func (tc *TaskController) CreateSingleTask(c *app.Context) {
 
 }
@@ -84,7 +84,7 @@ func (tc *TaskController) CreateSingleTask(c *app.Context) {
 // @Produce json
 // @Param task body model.ReqTaskMultiCreate true "任务信息"
 // @Success 200 {string} app.Response "Success"
-// @Router /v1/task/create/multiple [post]
+// @Router /api/v1/task/create/multiple [post]
 func (tc *TaskController) CreateMultipleTask(c *app.Context) {
 
 }
@@ -97,7 +97,7 @@ func (tc *TaskController) CreateMultipleTask(c *app.Context) {
 // @Produce json
 // @Param task body model.ReqTaskBatchCreate true "任务信息"
 // @Success 200 {string} app.Response "Success"
-// @Router /v1/task/create/batch [post]
+// @Router /api/v1/task/create/batch [post]
 func (tc *TaskController) CreateBatchTask(c *app.Context) {
 }
 
