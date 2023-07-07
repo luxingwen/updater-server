@@ -21,7 +21,7 @@ type ProgramController struct {
 // @Accept json
 // @Produce json
 // @Param query body model.ReqProgrameQuery true "查询参数"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.ProgramQueryResponse
 // @Router /api/v1/program/list [post]
 func (pc *ProgramController) GetAllPrograms(c *app.Context) {
 	var query model.ReqProgrameQuery
@@ -71,7 +71,7 @@ func (pc *ProgramController) DeleteProgram(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param body body model.Program true "program object that needs to be created"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.ProgramInfoResponse
 // @Router /api/v1/program/create [post]
 func (pc *ProgramController) CreateProgram(c *app.Context) {
 	var program model.Program
@@ -96,7 +96,7 @@ func (pc *ProgramController) CreateProgram(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param body body model.Program true "program object that needs to be updated"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.ProgramInfoResponse
 // @Router /api/v1/program/update [post]
 func (pc *ProgramController) UpdateProgram(c *app.Context) {
 	var updatedProgram model.Program
@@ -121,7 +121,7 @@ func (pc *ProgramController) UpdateProgram(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param query body model.ReqProgrameQuery true "查询参数"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.ProgramInfoResponse
 // @Router /api/v1/program/detail [post]
 func (pc *ProgramController) GetProgramDetail(c *app.Context) {
 	var query model.ReqProgrameQuery

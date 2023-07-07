@@ -25,7 +25,7 @@ type TaskController struct {
 // @Accept json
 // @Produce json
 // @Param query body model.ReqTaskQuery true "查询参数"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.TaskQueryResponse
 // @Router /api/v1/task/list [post]
 func (tc *TaskController) QueryTasks(c *app.Context) {
 	var query model.ReqTaskQuery
@@ -49,7 +49,7 @@ func (tc *TaskController) QueryTasks(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param query body model.ReqTaskInfoParam true "查询参数"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.TaskInfoResponse
 // @Router /api/v1/task/info [post]
 func (tc *TaskController) GetTaskInfo(c *app.Context) {
 	var query model.Task
@@ -73,10 +73,11 @@ func (tc *TaskController) GetTaskInfo(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param task body model.ReqTaskSingleCreate true "任务信息"
-// @Success 200 {string} app.Response "Success"
+// @Success 200 {object} model.CreateSingleTaskResponse
 // @Router /api/v1/task/create/single [post]
 func (tc *TaskController) CreateSingleTask(c *app.Context) {
 
+	c.Logger.Info("create single task")
 	var task model.ReqTaskSingleCreate
 	if err := c.ShouldBindJSON(&task); err != nil {
 		c.JSONError(http.StatusBadRequest, err.Error())
@@ -88,11 +89,21 @@ func (tc *TaskController) CreateSingleTask(c *app.Context) {
 	}
 
 	if task.Type == "script" {
-		taskContent.Content = task.Script
+		bstr, err := json.Marshal(task.Script)
+		if err != nil {
+			c.JSONError(http.StatusBadRequest, err.Error())
+			return
+		}
+		taskContent.Content = string(bstr)
 	}
 
 	if task.Type == "file" {
-		taskContent.Content = task.DownloadFile
+		bstr, err := json.Marshal(task.Script)
+		if err != nil {
+			c.JSONError(http.StatusBadRequest, err.Error())
+			return
+		}
+		taskContent.Content = string(bstr)
 	}
 
 	taskContentBytes, err := json.Marshal(taskContent)
@@ -124,7 +135,7 @@ func (tc *TaskController) CreateSingleTask(c *app.Context) {
 	})
 
 	mdata := make(map[string]interface{})
-	mdata["record_id"] = record.RecordID
+	mdata["recordId"] = record.RecordID
 
 	c.JSONSuccess(mdata)
 
@@ -137,7 +148,7 @@ func (tc *TaskController) CreateSingleTask(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param task body model.ReqTaskMultiCreate true "任务信息"
-// @Success 200 {string} app.Response "Success"
+// @Success 200 {object} model.TaskInfoResponse
 // @Router /api/v1/task/create/multiple [post]
 func (tc *TaskController) CreateMultipleTask(c *app.Context) {
 
@@ -162,16 +173,15 @@ func (tc *TaskController) CreateMultipleTask(c *app.Context) {
 		return
 	}
 
+	contentStr, err := param.GetContentStr()
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	recordContent := model.TaskContent{
-		Type: param.Type,
-	}
-
-	if param.Type == "script" {
-		recordContent.Content = param.Script
-	}
-
-	if param.Type == "file" {
-		recordContent.Content = param.DownloadFile
+		Type:    param.Type,
+		Content: contentStr,
 	}
 
 	recordContentBytes, err := json.Marshal(recordContent)
@@ -235,7 +245,7 @@ func (tc *TaskController) CreateMultipleTask(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param task body model.ReqTaskBatchCreate true "任务信息"
-// @Success 200 {string} app.Response "Success"
+// @Success 200 {object} model.TaskInfoResponse
 // @Router /api/v1/task/create/batch [post]
 func (tc *TaskController) CreateBatchTask(c *app.Context) {
 
@@ -261,16 +271,15 @@ func (tc *TaskController) CreateBatchTask(c *app.Context) {
 		return
 	}
 
+	contentStr, err := param.GetContentStr()
+	if err != nil {
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	recordContent := model.TaskContent{
-		Type: param.Type,
-	}
-
-	if param.Type == "script" {
-		recordContent.Content = param.Script
-	}
-
-	if param.Type == "file" {
-		recordContent.Content = param.DownloadFile
+		Type:    param.Type,
+		Content: contentStr,
 	}
 
 	recordContentBytes, err := json.Marshal(recordContent)
@@ -375,65 +384,4 @@ func (tc *TaskController) CreateBatchTask(c *app.Context) {
 	})
 
 	c.JSONSuccess(task)
-}
-
-func (tc *TaskController) CreateFileDownload(c *app.Context) {
-	var taskFile model.FileDownloadTask
-	if err := c.ShouldBindJSON(&taskFile); err != nil {
-		c.JSONError(http.StatusBadRequest, err.Error())
-		return
-	}
-
-	reqbody, err := json.Marshal(taskFile)
-	if err != nil {
-		c.JSONError(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	task := &model.Task{
-		TaskID:      uuid.New().String(),
-		TaskName:    taskFile.Name,
-		Description: "",
-		Creater:     taskFile.Creater,
-		TaskType:    "file_download",
-		TaskStatus:  model.TaskStatusPreparing,
-		Ext:         string(reqbody),
-	}
-
-	err = tc.Service.CreateTask(c, task)
-	if err != nil {
-		c.JSONError(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	taskContent := &model.TaskContent{
-		Type:    "file_download",
-		Content: taskFile.Content,
-	}
-	taskContentStr, err := json.Marshal(taskContent)
-	if err != nil {
-		c.JSONError(http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	for _, item := range taskFile.Clients {
-
-		taskExecutionRecord := &model.TaskExecutionRecord{
-			RecordID:   uuid.New().String(),
-			TaskID:     task.TaskID,
-			ClientUUID: item,
-			Content:    string(taskContentStr),
-			TaskType:   "file_download",
-			Name:       "",
-			Category:   "sub",
-			Status:     model.TaskStatusPreparing,
-		}
-
-		err = tc.TaskExecutionRecordService.CreateRecord(c, taskExecutionRecord)
-		if err != nil {
-			c.JSONError(http.StatusInternalServerError, err.Error())
-			return
-		}
-	}
-
 }

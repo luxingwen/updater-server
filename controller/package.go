@@ -23,7 +23,7 @@ type PackageController struct {
 // @Accept json
 // @Produce json
 // @Param query body model.ReqPackageQuery true "查询参数"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.GetAllProgramPackageResponse
 // @Router /api/v1/program/package/list [post]
 func (pc *PackageController) GetAllPackages(c *app.Context) {
 	var query model.ReqPackageQuery
@@ -48,7 +48,7 @@ func (pc *PackageController) GetAllPackages(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param Package body model.Package true "Package data"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.CreateProgramPackageResponse
 // @Router /api/v1/program/package/create [post]
 func (pc *PackageController) CreatePackage(c *app.Context) {
 	var mpackage model.Package
@@ -74,7 +74,7 @@ func (pc *PackageController) CreatePackage(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param Package body model.Package true "Package data"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.CreateProgramPackageResponse
 // @Router /api/v1/program/package/update/{id} [post]
 func (pc *PackageController) UpdatePackage(c *app.Context) {
 	var updatedPackage model.Package

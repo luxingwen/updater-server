@@ -29,7 +29,7 @@ type ProgramActionController struct {
 // @Accept json
 // @Produce json
 // @Param query body model.ProgramAction true "查询参数"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.GetProgramActionDetailResponse
 // @Router /api/v1/program/action/detail [post]
 func (pac *ProgramActionController) GetProgramActionByUUID(c *app.Context) {
 
@@ -56,7 +56,7 @@ func (pac *ProgramActionController) GetProgramActionByUUID(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param query body model.ReqProgramActionQuery true "查询参数"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.GetProgramActionListResponse
 // @Router /api/v1/program/action/list [post]
 func (pac *ProgramActionController) GetAllProgramActions(c *app.Context) {
 	var query model.ReqProgramActionQuery
@@ -84,7 +84,7 @@ func (pac *ProgramActionController) GetAllProgramActions(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param query body model.ProgramAction true "创建参数"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.GetProgramActionDetailResponse
 // @Router /api/v1/program/action/create [post]
 func (pac *ProgramActionController) CreateProgramAction(c *app.Context) {
 	var action model.ProgramAction
@@ -109,7 +109,7 @@ func (pac *ProgramActionController) CreateProgramAction(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param query body model.ProgramAction true "查询参数"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.GetProgramActionDetailResponse
 // @Router /api/v1/program/action/update [post]
 func (pac *ProgramActionController) UpdateProgramAction(c *app.Context) {
 	var updatedAction model.ProgramAction
@@ -154,7 +154,7 @@ func (pac *ProgramActionController) DeleteProgramAction(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param actionTask body model.ReqTaskProgramAction true "创建任务参数"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.TaskInfoResponse
 // @Router /api/v1/program/action/execute [post]
 func (pac *ProgramActionController) CreateActionTask(c *app.Context) {
 	var actionTask *model.ReqTaskProgramAction

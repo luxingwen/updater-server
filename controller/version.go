@@ -20,7 +20,7 @@ type VersionController struct {
 // @Accept json
 // @Produce json
 // @Param query body model.ReqVersionQuery true "查询参数"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.VersionQueryResponse
 // @Router /v1/version/list [post]
 func (vc *VersionController) GetAllVersions(c *app.Context) {
 	// Implementation goes here...
@@ -47,7 +47,7 @@ func (vc *VersionController) GetAllVersions(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param query body model.Version true "查询参数"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.VersionInfoResponse
 // @Router /v1/version/info [post]
 func (vc *VersionController) GetVersionByUUID(c *app.Context) {
 	// Implementation goes here...
@@ -75,7 +75,7 @@ func (vc *VersionController) GetVersionByUUID(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param body body model.Version true "version object that needs to be added"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.VersionInfoResponse
 // @Router /v1/version/create [post]
 func (vc *VersionController) CreateVersion(c *app.Context) {
 	// Implementation goes here...
@@ -102,7 +102,7 @@ func (vc *VersionController) CreateVersion(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param body body model.Version true "version object that needs to be updated"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.VersionInfoResponse
 // @Router /v1/version/update [post]
 func (vc *VersionController) UpdateVersion(c *app.Context) {
 	// Implementation goes here...

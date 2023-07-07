@@ -81,7 +81,7 @@ func (es *ExecutorServer) ExecuteTaskRecord(ctx *app.Context, task TaskExecItem)
 
 	ctx.Logger.Info("task content:", taskContent)
 	if taskContent.Type == "program_script" {
-		ctx.Logger.Info("script task")
+		ctx.Logger.Info("program_script task")
 		// 执行脚本任务
 		es.ExecuteProgramScript(ctx, recordInfo)
 		return
@@ -90,6 +90,20 @@ func (es *ExecutorServer) ExecuteTaskRecord(ctx *app.Context, task TaskExecItem)
 	if taskContent.Type == "program_download" {
 		ctx.Logger.Info("program_download task")
 	}
+
+	if taskContent.Type == "script" {
+		ctx.Logger.Info("script task")
+		es.ExecuteScript(ctx, recordInfo)
+		return
+	}
+
+	if taskContent.Type == "file" {
+		ctx.Logger.Info("file task")
+		es.ExecuteFileDownload(ctx, recordInfo)
+		return
+	}
+
+	ctx.Logger.Info("task content type:", taskContent.Type)
 
 	return err
 }
@@ -121,6 +135,100 @@ type ScriptTaskRequest struct {
 	Timeout     int               `json:"timeout"`
 	Interpreter string            `json:"interpreter"`
 	Stdin       string            `json:"stdin"`
+}
+
+// 执行脚本
+func (es *ExecutorServer) ExecuteScript(ctx *app.Context, recordInfo *model.TaskExecutionRecord) (err error) {
+
+	ctx.Logger.Info("execute script task, record id:", recordInfo.RecordID)
+	tcontent := &TaskContentProgram{}
+	err = json.Unmarshal([]byte(recordInfo.Content), tcontent)
+	if err != nil {
+		ctx.Logger.Error("unmarshal task content error:", err)
+		es.ExecuteTaskRecordFailed(ctx, recordInfo, err.Error())
+		return err
+	}
+
+	var scriptReq model.ReqScriptContent
+
+	err = json.Unmarshal([]byte(tcontent.Content), &scriptReq)
+	if err != nil {
+		ctx.Logger.Error("unmarshal task content error:", err)
+		es.ExecuteTaskRecordFailed(ctx, recordInfo, err.Error())
+		return err
+	}
+
+	if scriptReq.Timeout == 0 {
+		scriptReq.Timeout = 60
+	}
+
+	sq := ScriptTaskRequest{
+		TaskID:      recordInfo.RecordID,
+		Content:     scriptReq.Content,
+		WorkDir:     scriptReq.WorkDir,
+		Params:      scriptReq.Params,
+		Timeout:     scriptReq.Timeout,
+		Interpreter: scriptReq.Interpreter,
+		Stdin:       scriptReq.Stdin,
+	}
+
+	for _, item := range scriptReq.Envs {
+		sq.Env[item.Key] = item.Value
+	}
+
+	err = es.WsContext.SendRequest(recordInfo.ClientUUID, "v1/ExecuteScript", ctx.TraceID, recordInfo.RecordID, sq)
+
+	if err != nil {
+		ctx.Logger.Error("send request error:", err)
+		es.ExecuteTaskRecordFailed(ctx, recordInfo, err.Error())
+		return
+	}
+
+	mdata := make(map[string]interface{})
+	mdata["status"] = model.TaskStatusRunning
+	mdata["start_time"] = time.Now()
+	err = es.TaskExecutionRecordService.UpdateRecordByMap(ctx, recordInfo.RecordID, mdata)
+	if err != nil {
+		ctx.Logger.Error("update record error:", err)
+		return
+	}
+	return
+}
+
+// 执行文件下载
+func (es *ExecutorServer) ExecuteFileDownload(ctx *app.Context, recordInfo *model.TaskExecutionRecord) (err error) {
+
+	ctx.Logger.Info("execute file download task, record id:", recordInfo.RecordID)
+
+	tcontent := &TaskContentProgram{}
+	err = json.Unmarshal([]byte(recordInfo.Content), tcontent)
+	if err != nil {
+		ctx.Logger.Error("unmarshal task content error:", err)
+		es.ExecuteTaskRecordFailed(ctx, recordInfo, err.Error())
+		return err
+	}
+
+	var downloadFile model.DownloadRequest
+
+	err = json.Unmarshal([]byte(tcontent.Content), &downloadFile)
+	if err != nil {
+		ctx.Logger.Error("unmarshal task content error:", err)
+		es.ExecuteTaskRecordFailed(ctx, recordInfo, err.Error())
+		return err
+	}
+
+	ctx.Logger.Info("download file record id:", recordInfo.RecordID)
+
+	err = es.WsContext.SendRequest(recordInfo.ClientUUID, "v1/DownloadFile", ctx.TraceID, recordInfo.RecordID, downloadFile)
+
+	if err != nil {
+		ctx.Logger.Error("send request error:", err)
+		es.ExecuteTaskRecordFailed(ctx, recordInfo, err.Error())
+		return
+	}
+
+	return err
+
 }
 
 // 执行程序脚本
@@ -178,7 +286,7 @@ func (es *ExecutorServer) ExecuteProgramScript(ctx *app.Context, recordInfo *mod
 		sq.Timeout = 60
 	}
 
-	err = es.WsContext.SendRequest(recordInfo.ClientUUID, "v1/ExecuteScript", sq)
+	err = es.WsContext.SendRequest(recordInfo.ClientUUID, "v1/ExecuteScript", ctx.TraceID, recordInfo.RecordID, sq)
 
 	if err != nil {
 		ctx.Logger.Error("send request error:", err)
@@ -201,7 +309,7 @@ func (es *ExecutorServer) ExecuteProgramScript(ctx *app.Context, recordInfo *mod
 // 执行记录失败
 func (es *ExecutorServer) ExecuteTaskRecordFailed(ctx *app.Context, recordInfo *model.TaskExecutionRecord, msg string) (err error) {
 	mdata := make(map[string]interface{})
-	mdata["status"] = "failed"
+	mdata["status"] = model.TaskStatusFailed
 	mdata["message"] = msg
 	mdata["start_time"] = time.Now()
 	mdata["end_time"] = time.Now()
@@ -224,6 +332,39 @@ type ScriptResult struct {
 	EndTime   time.Time `json:"end_time"`
 }
 
+// 执行信息
+type ExecuteInfo struct {
+	StartTime time.Time `json:"startTime""`
+	EndTime   time.Time `json:"endTime"`
+	Message   string    `json:"message"`
+}
+
+func (es *ExecutorServer) HandleResDownloadFile(ctx *wsserver.Context) (err error) {
+	ctx.Logger.Info("file result taskid:", ctx.Message.TaskId)
+	mdata := make(map[string]interface{})
+
+	var executeInfo ExecuteInfo
+	err = json.Unmarshal(ctx.Message.Data, &executeInfo)
+	if err != nil {
+		ctx.Logger.Error("json unmarshal err: ", err)
+		return
+	}
+
+	mdata["status"] = model.TaskStatusCompleted
+	mdata["message"] = executeInfo.Message
+	mdata["start_time"] = executeInfo.StartTime
+	mdata["end_time"] = executeInfo.EndTime
+	mdata["code"] = ctx.Message.Code
+
+	err = es.TaskExecutionRecordService.UpdateRecordByMap(ctx.AppContext(), ctx.Message.TaskId, mdata)
+	if err != nil {
+		ctx.Logger.Error("update record error:", err)
+		return
+	}
+
+	return
+}
+
 func (es *ExecutorServer) HandleResScript(ctx *wsserver.Context) (err error) {
 	var scriptRes ScriptResult
 	err = json.Unmarshal(ctx.Message.Data, &scriptRes)
@@ -234,13 +375,15 @@ func (es *ExecutorServer) HandleResScript(ctx *wsserver.Context) (err error) {
 
 	ctx.Logger.Info("script result:", scriptRes)
 	mdata := make(map[string]interface{})
-	mdata["status"] = "completed"
+	mdata["status"] = model.TaskStatusCompleted
 	mdata["message"] = scriptRes.Error
 	mdata["start_time"] = scriptRes.StartTime
 	mdata["end_time"] = scriptRes.EndTime
 	mdata["script_exit_code"] = scriptRes.ExitCode
 	mdata["stdout"] = scriptRes.Stdout
 	mdata["stderr"] = scriptRes.Stderr
+	mdata["code"] = ctx.Message.Code
+	mdata["message"] = ctx.Message.Msg
 	err = es.TaskExecutionRecordService.UpdateRecordByMap(ctx.AppContext(), scriptRes.TaskID, mdata)
 	if err != nil {
 		ctx.Logger.Error("update record error:", err)

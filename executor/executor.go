@@ -43,7 +43,7 @@ func EnqueueTask(ctx *app.Context, task TaskExecItem) error {
 func (es *ExecutorServer) Execute(ctx *app.Context) error {
 	taskJSON, err := ctx.Redis.Dequeue(context.Background(), TaskQueueKey)
 	if err != nil {
-		ctx.Logger.Error("dequeue task error:", err)
+		//ctx.Logger.Error("dequeue task error:", err)
 		return err
 	}
 

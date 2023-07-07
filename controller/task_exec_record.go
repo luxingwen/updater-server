@@ -18,7 +18,7 @@ type TaskExecRecordController struct {
 // @Accept json
 // @Produce json
 // @Param query body model.ReqTaskRecordeQuery true "查询参数"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.TaskExecRecordQueryResponse
 // @Router /api/v1/task/record/list [post]
 func (tcr *TaskExecRecordController) QueryTaskExecRecords(c *app.Context) {
 	var query model.ReqTaskRecordeQuery
@@ -42,7 +42,7 @@ func (tcr *TaskExecRecordController) QueryTaskExecRecords(c *app.Context) {
 // @Accept json
 // @Produce json
 // @Param query body model.TaskRecordInfoParam true "查询参数"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.TaskExecRecordInfoResponse
 // @Router /api/v1/task/record/detail [post]
 func (tcr *TaskExecRecordController) GetTaskExecRecordInfo(c *app.Context) {
 	var query model.TaskRecordInfoParam

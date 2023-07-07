@@ -57,12 +57,20 @@ func (ctx *Context) JSONError(code string, msg *Message) {
 	}
 }
 
-func (ctx *Context) SendRequest(to string, typ string, req interface{}) (err error) {
+// SendRequest 发送请求
+// to: 目标客户端的 UUID
+// typ: 请求类型
+// traceId: 请求的 traceId
+// taskId: 请求的 taskId
+// req: 请求的数据
+func (ctx *Context) SendRequest(to string, typ string, traceId string, taskId string, req interface{}) (err error) {
 	msg := &Message{
-		Id:     uuid.New().String(),
-		Method: METHOD_REQUEST,
-		Type:   typ,
-		To:     to,
+		Id:      uuid.New().String(),
+		Method:  METHOD_REQUEST,
+		Type:    typ,
+		To:      to,
+		TraceId: traceId,
+		TaskId:  taskId,
 	}
 	ctx.Logger.Info("SendRequest:", to, typ)
 

@@ -11,17 +11,17 @@ import (
 // Program 是程序结构体
 type Program struct {
 	ID                 uint            `gorm:"primaryKey"`
-	Uuid               string          `json:"uuid" gorm:"column:uuid"`
-	ExecUser           string          `json:"execUser" gorm:"column:exec_user"`
-	Name               string          `json:"name" gorm:"column:name"`
-	Description        string          `json:"description" gorm:"column:description"`
-	TeamID             string          `json:"teamID" gorm:"column:team_id"`
+	Uuid               string          `json:"uuid" gorm:"column:uuid"`                        // 程序唯一标识
+	ExecUser           string          `json:"execUser" gorm:"column:exec_user"`               // 程序执行用户
+	Name               string          `json:"name" gorm:"column:name"`                        // 程序名称
+	Description        string          `json:"description" gorm:"column:description"`          // 程序描述
+	TeamID             string          `json:"teamID" gorm:"column:team_id"`                   // 团队ID
 	WindowsInstallPath string          `json:"windowsInstallPath" gorm:"windows_install_path"` // 安装路径
 	LinuxInstallPath   string          `json:"linuxInstallPath" gorm:"linux_install_path"`     // 安装路径
-	Actions            []ProgramAction `json:"actions" gorm:"foreignKey:ProgramUUID"`
-	CreatedAt          time.Time       `json:"createdAt"`
-	UpdatedAt          time.Time       `json:"updatedAt"`
-	Versions           []Version       `json:"versions" gorm:"foreignKey:ProgramUuid"`
+	Actions            []ProgramAction `json:"actions" gorm:"foreignKey:ProgramUUID"`          // 程序动作列表
+	CreatedAt          time.Time       `json:"createdAt"`                                      // 创建时间
+	UpdatedAt          time.Time       `json:"updatedAt"`                                      // 更新时间
+	Versions           []Version       `json:"versions" gorm:"foreignKey:ProgramUuid"`         // 程序版本列表
 }
 
 func (Program) TableName() string {
@@ -29,41 +29,41 @@ func (Program) TableName() string {
 }
 
 type Version struct {
-	ID          uint      `gorm:"primaryKey"`
-	Uuid        string    `json:"uuid" gorm:"column:uuid"`
-	ProgramUuid string    `json:"programUuid"`
-	Version     string    `json:"version"`
-	ReleaseNote string    `json:"releaseNote"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
-	Packages    []Package `json:"packages" gorm:"foreignKey:VersionUuid"`
+	ID          uint      `gorm:"primaryKey"`                             // 程序版本ID
+	Uuid        string    `json:"uuid" gorm:"column:uuid"`                // 程序版本UUID
+	ProgramUuid string    `json:"programUuid"`                            // 程序UUID
+	Version     string    `json:"version"`                                // 程序版本
+	ReleaseNote string    `json:"releaseNote"`                            // 程序版本发布说明
+	CreatedAt   time.Time `json:"createdAt"`                              // 创建时间
+	UpdatedAt   time.Time `json:"updatedAt"`                              // 更新时间
+	Packages    []Package `json:"packages" gorm:"foreignKey:VersionUuid"` // 程序包列表
 }
 
 type Package struct {
-	ID           uint      `gorm:"primaryKey"`
-	Uuid         string    `json:"uuid" gorm:"primaryKey"`
-	VersionUuid  string    `json:"versionUuid" gorm:"index"`
-	Os           string    `json:"os"`
-	Arch         string    `json:"arch"`
-	StoragePath  string    `json:"storagePath"`
-	DownloadPath string    `json:"downloadPath"`
-	MD5          string    `json:"md5"`
-	CreatedAt    time.Time `json:"createdAt"`
-	UpdatedAt    time.Time `json:"updatedAt"`
+	ID           uint      `gorm:"primaryKey"`               // 程序包ID
+	Uuid         string    `json:"uuid" gorm:"primaryKey"`   // 程序包UUID
+	VersionUuid  string    `json:"versionUuid" gorm:"index"` // 程序版本UUID
+	Os           string    `json:"os"`                       // 程序包操作系统
+	Arch         string    `json:"arch"`                     // 程序包架构
+	StoragePath  string    `json:"storagePath"`              // 程序包存储路径
+	DownloadPath string    `json:"downloadPath"`             // 程序包下载路径
+	MD5          string    `json:"md5"`                      // 程序包MD5
+	CreatedAt    time.Time `json:"createdAt"`                // 创建时间
+	UpdatedAt    time.Time `json:"updatedAt"`                // 更新时间
 }
 
 // 程序动作
 type ProgramAction struct {
-	ID          uint       `gorm:"primaryKey"`
-	Uuid        string     `json:"uuid" gorm:"primaryKey"`
-	ProgramUUID string     `json:"programUUID" gorm:"index"`
-	Name        string     `json:"name"`
-	ActionType  ActionType `json:"actionType"`
-	Content     string     `json:"content"`
-	Status      string     `json:"status"`
-	Description string     `json:"description""`
-	CreatedAt   time.Time  `json:"createdAt"`
-	UpdatedAt   time.Time  `json:"updatedAt"`
+	ID          uint       `gorm:"primaryKey"`               // 程序动作ID
+	Uuid        string     `json:"uuid" gorm:"primaryKey"`   // 程序动作UUID
+	ProgramUUID string     `json:"programUUID" gorm:"index"` // 程序UUID
+	Name        string     `json:"name"`                     // 程序动作名称
+	ActionType  ActionType `json:"actionType"`               // 程序动作类型
+	Content     string     `json:"content"`                  // 程序动作内容
+	Status      string     `json:"status"`                   // 程序动作状态
+	Description string     `json:"description""`             // 程序动作描述
+	CreatedAt   time.Time  `json:"createdAt"`                // 创建时间
+	UpdatedAt   time.Time  `json:"updatedAt"`                // 更新时间
 }
 
 func (ProgramAction) TableName() string {
@@ -71,12 +71,12 @@ func (ProgramAction) TableName() string {
 }
 
 type TemplateAction struct {
-	ProgramActionUuid string `json:"programActionUuid"`
-	Sequence          int    `json:"sequence"`
-	Uuid              string `json:"uuid"`
-	NextUuid          string `json:"nextUuid"`
-	TaskRecordId      string `json:"taskRecordId"`
-	NextTaskRecordId  string `json:"nextTaskRecordId"`
+	ProgramActionUuid string `json:"programActionUuid"` // 程序动作UUID
+	Sequence          int    `json:"sequence"`          // 程序动作顺序
+	Uuid              string `json:"uuid"`              // 模板动作UUID
+	NextUuid          string `json:"nextUuid"`          // 下一个模板动作UUID
+	TaskRecordId      string `json:"taskRecordId"`      // 任务记录ID
+	NextTaskRecordId  string `json:"nextTaskRecordId"`  // 下一个任务记录ID
 }
 
 func GenerateTemplateActionNextUuids(actions []*TemplateAction) {
@@ -150,8 +150,8 @@ var InitialActions = []ProgramAction{
 		Uuid:       uuid.New().String(),
 		Name:       "安装",
 		ActionType: "Install",
-		Content: `[{"os": "linux", "content": "Linux 安装内容"}, 
-		          {"os": "windows", "content": "Windows 安装内容"}]`,
+		Content: `[{"os": "linux", "content": "echo hello"}, 
+		          {"os": "windows", "content": "echo hello"}]`,
 		Status:      "待处理",
 		Description: "安装动作的描述信息",
 		CreatedAt:   time.Now(),
@@ -161,8 +161,8 @@ var InitialActions = []ProgramAction{
 		Uuid:       uuid.New().String(),
 		Name:       "启动",
 		ActionType: "Start",
-		Content: `[{"os": "linux", "content": "Linux 启动内容"}, 
-		          {"os": "windows", "content": "Windows 启动内容"}]`,
+		Content: `[{"os": "linux", "content": "echo hello"}, 
+		          {"os": "windows", "content": "echo hello"}]`,
 		Status:      "待处理",
 		Description: "启动动作的描述信息",
 		CreatedAt:   time.Now(),
@@ -172,7 +172,7 @@ var InitialActions = []ProgramAction{
 		Uuid:       uuid.New().String(),
 		Name:       "停止",
 		ActionType: "Stop",
-		Content: `[{"os": "linux", "content": "Linux 停止内容"}, 
+		Content: `[{"os": "linux", "content": "echo hello"}, 
 		          {"os": "windows", "content": "Windows 停止内容"}]`,
 		Status:      "待处理",
 		Description: "停止动作的描述信息",

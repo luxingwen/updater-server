@@ -1,5 +1,7 @@
 package model
 
+import "encoding/json"
+
 type Pagination struct {
 	PageSize int `form:"pageSize"`
 	Current  int `form:"current"`
@@ -163,6 +165,27 @@ func (self *ReqTaskMultiCreate) GetContentTimeout() int {
 		return self.DownloadFile.Timeout
 	}
 	return 60
+}
+
+func (self *ReqTaskMultiCreate) GetContentStr() (r string, err error) {
+
+	if self.Type == "script" {
+		b, err := json.Marshal(self.Script)
+		if err != nil {
+			return "", err
+		}
+		return string(b), nil
+	}
+
+	if self.Type == "file" {
+		b, err := json.Marshal(self.DownloadFile)
+		if err != nil {
+			return "", err
+		}
+		return string(b), nil
+	}
+
+	return
 }
 
 // 批次任务请求信息

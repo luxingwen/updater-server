@@ -18,7 +18,7 @@ type ClientController struct {
 // @Accept json
 // @Produce json
 // @Param query body model.ReqClientQuery true "查询参数"
-// @Success 200 {object} app.Response "Success"
+// @Success 200 {object} model.ClientQueryResponse
 // @Router /api/v1/client/list [post]
 func (cc *ClientController) QueryClients(c *app.Context) {
 	var query model.ReqClientQuery
