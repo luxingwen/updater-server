@@ -26,28 +26,28 @@ type Task struct {
 }
 
 type TaskExecutionRecord struct {
-	Id             uint          `gorm:"primaryKey"`
-	RecordID       string        `json:"recordId"`       // 执行记录ID
-	TaskID         string        `json:"taskId"`         // 任务ID
-	ClientUUID     string        `json:"clientUuid"`     // 客户端UUID
-	Category       string        `json:"category"`       // 任务类别
-	Name           string        `json:"name"`           // 任务名称
-	TaskType       string        `json:"taskType"`       // 任务类型
-	Status         string        `json:"status"`         // 任务状态
-	StartTime      time.Time     `json:"startTime"`      // 任务开始时间
-	EndTime        time.Time     `json:"endTime"`        // 任务结束时间
-	Stdout         string        `json:"stdout"`         // 标准输出
-	Stderr         string        `json:"stderr"`         // 标准错误
-	Message        string        `json:"message"`        // 消息
-	ScriptExitCode int           `json:"scriptExitCode"` // 脚本退出码
-	Code           string        `json:"code"`           // 任务执行码
-	Content        string        `json:"content"`        // 任务内容
-	Timeout        time.Duration `json:"timeout"`        // 任务超时时间
-	ParentRecordID string        `json:"parentRecordId"` // 父任务执行记录ID
-	NextRecordID   string        `json:"nextRecordId"`   // 下一个任务执行记录ID
-	TraceId        string        `json:"traceId"`        // 跟踪id
-	CreatedAt      time.Time     `gorm:"column:created_at" json:"created"`
-	UpdatedAt      time.Time     `gorm:"column:updated_at" json:"updated"`
+	Id             uint      `gorm:"primaryKey"`
+	RecordID       string    `json:"recordId"`       // 执行记录ID
+	TaskID         string    `json:"taskId"`         // 任务ID
+	ClientUUID     string    `json:"clientUuid"`     // 客户端UUID
+	Category       string    `json:"category"`       // 任务类别
+	Name           string    `json:"name"`           // 任务名称
+	TaskType       string    `json:"taskType"`       // 任务类型
+	Status         string    `json:"status"`         // 任务状态
+	StartTime      time.Time `json:"startTime"`      // 任务开始时间
+	EndTime        time.Time `json:"endTime"`        // 任务结束时间
+	Stdout         string    `json:"stdout"`         // 标准输出
+	Stderr         string    `json:"stderr"`         // 标准错误
+	Message        string    `json:"message"`        // 消息
+	ScriptExitCode int       `json:"scriptExitCode"` // 脚本退出码
+	Code           string    `json:"code"`           // 任务执行码
+	Content        string    `json:"content"`        // 任务内容
+	Timeout        int       `json:"timeout"`        // 任务超时时间
+	ParentRecordID string    `json:"parentRecordId"` // 父任务执行记录ID
+	NextRecordID   string    `json:"nextRecordId"`   // 下一个任务执行记录ID
+	TraceId        string    `json:"traceId"`        // 跟踪id
+	CreatedAt      time.Time `gorm:"column:created_at" json:"created"`
+	UpdatedAt      time.Time `gorm:"column:updated_at" json:"updated"`
 }
 
 type HostInfo struct {
@@ -207,6 +207,7 @@ const (
 	TaskStatusPaused    = "Paused"    // 暂停
 	TaskStatusAbandoned = "Abandoned" // 废弃
 	TaskStatusCompleted = "Completed" // 完成
+	TaskStatusSuceess   = "Success"   // 成功
 	TaskStatusFailed    = "Failed"    // 失败
 )
 

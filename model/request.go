@@ -109,25 +109,65 @@ type ReqScriptContent struct {
 
 // 单个任务请求信息
 type ReqTaskSingleCreate struct {
-	ClientUuid string           `json:"clientUuid"` // 客户端uuid
-	Type       string           `json:"type"`       // 任务类型 script | file
-	Script     ReqScriptContent `json:"script"`     // 脚本内容
-	Creater    string           `json:"creater"`    // 创建人
+	ClientUuid   string           `json:"clientUuid"`   // 客户端uuid
+	Type         string           `json:"type"`         // 任务类型 script | file
+	Script       ReqScriptContent `json:"script"`       // 脚本内容
+	DownloadFile DownloadRequest  `json:"downloadFile"` // 下载文件
+	Creater      string           `json:"creater"`      // 创建人
+}
+
+// 获取超时时间
+func (self *ReqTaskSingleCreate) GetTimeout() int {
+
+	if self.Type == "script" {
+		if self.Script.Timeout == 0 {
+			return 60
+		}
+		return self.Script.Timeout
+	}
+
+	if self.Type == "file" {
+		if self.DownloadFile.Timeout == 0 {
+			return 60
+		}
+		return self.DownloadFile.Timeout
+	}
+	return 60
 }
 
 // 多个任务请求信息
 type ReqTaskMultiCreate struct {
-	ClientUuids []string         `json:"clientUuids"` // 客户端uuid list
-	TaskName    string           `json:"taskName"`    // 任务名称
-	Description string           `json:"description"` // 任务描述
-	Creater     string           `json:"creater"`     // 创建人
-	Type        string           `json:"type"`        // 任务类型 script | file
-	Script      ReqScriptContent `json:"script"`      // 脚本内容
+	ClientUuids  []string         `json:"clientUuids"`  // 客户端uuid list
+	TaskName     string           `json:"taskName"`     // 任务名称
+	Description  string           `json:"description"`  // 任务描述
+	Creater      string           `json:"creater"`      // 创建人
+	Type         string           `json:"type"`         // 任务类型 script | file
+	Script       ReqScriptContent `json:"script"`       // 脚本内容
+	DownloadFile DownloadRequest  `json:"downloadFile"` // 下载文件
+}
+
+// 获取超时时间
+func (self *ReqTaskMultiCreate) GetContentTimeout() int {
+
+	if self.Type == "script" {
+		if self.Script.Timeout == 0 {
+			return 60
+		}
+		return self.Script.Timeout
+	}
+
+	if self.Type == "file" {
+		if self.DownloadFile.Timeout == 0 {
+			return 60
+		}
+		return self.DownloadFile.Timeout
+	}
+	return 60
 }
 
 // 批次任务请求信息
 type ReqTaskBatchCreate struct {
-	//BatchTask BatchTask `json:"batchTask"` // 批次任务
+	BatchTask BatchTask `json:"batchTask"` // 批次任务
 	ReqTaskMultiCreate
 }
 

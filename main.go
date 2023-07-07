@@ -126,12 +126,15 @@ func main() {
 	}
 
 	taskController := &controller.TaskController{
-		Service: &service.TaskService{},
+		Service:                    &service.TaskService{},
+		TaskExecutionRecordService: &service.TaskExecutionRecordService{},
 	}
 	{
 		v1.POST("/task/list", taskController.QueryTasks)
 		v1.POST("/task/detail", taskController.GetTaskInfo)
-
+		v1.POST("/task/create/single ", taskController.CreateSingleTask)
+		v1.POST("/task/create/batch", taskController.CreateBatchTask)
+		v1.POST("/task/create/multiple", taskController.CreateMultipleTask)
 	}
 
 	taskExecRecordDetail := &controller.TaskExecRecordController{

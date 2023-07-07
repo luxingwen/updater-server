@@ -19,13 +19,13 @@ func (es *ExecutorServer) ExecuteTaskRecord(ctx *app.Context, task TaskExecItem)
 	}
 
 	// 如果状态是暂停、停止或者是运行中
-	if recordInfo.Status == "paused" || recordInfo.Status == "stopped" || recordInfo.Status == "running" {
+	if recordInfo.Status == model.TaskStatusPaused || recordInfo.Status == model.TaskStatusRunning {
 		ctx.Logger.Info("task status is:", recordInfo.Status)
 		return nil
 	}
 
 	// 如果任务状态是已经完成
-	if recordInfo.Status == "completed" || recordInfo.Status == "failed" || recordInfo.Status == "success" {
+	if recordInfo.Status == model.TaskStatusCompleted || recordInfo.Status == model.TaskStatusFailed || recordInfo.Status == model.TaskStatusSuceess {
 		if recordInfo.NextRecordID != "" {
 			// 下一个任务
 			nextTaskExecItem := TaskExecItem{
@@ -112,15 +112,15 @@ type TaskContentProgramScript struct {
 }
 
 type ScriptTaskRequest struct {
-	TaskID      string   `json:"task_id"`
-	Type        string   `json:"type"`
-	Content     string   `json:"content"`
-	WorkDir     string   `json:"workDir"`
-	Params      []string `json:"params"`
-	Env         map[string]string
-	Timeout     int    `json:"timeout"`
-	Interpreter string `json:"interpreter"`
-	Stdin       string `json:"stdin"`
+	TaskID      string            `json:"task_id"`
+	Type        string            `json:"type"`
+	Content     string            `json:"content"`
+	WorkDir     string            `json:"workDir"`
+	Params      []string          `json:"params"`
+	Env         map[string]string `json:"env"`
+	Timeout     int               `json:"timeout"`
+	Interpreter string            `json:"interpreter"`
+	Stdin       string            `json:"stdin"`
 }
 
 // 执行程序脚本

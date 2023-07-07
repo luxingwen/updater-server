@@ -16,13 +16,13 @@ func (es *ExecutorServer) ExecuteTask(ctx *app.Context, task TaskExecItem) (err 
 	}
 
 	// 如果状态是暂停、停止或者是运行中
-	if taskInfo.TaskStatus == "paused" || taskInfo.TaskStatus == "stopped" || taskInfo.TaskStatus == "running" {
+	if taskInfo.TaskStatus == model.TaskStatusPaused || taskInfo.TaskStatus == model.TaskStatusAbandoned || taskInfo.TaskStatus == model.TaskStatusRunning {
 		ctx.Logger.Info("task status is:", taskInfo.TaskStatus)
 		return nil
 	}
 
 	// 判断状态是否完成
-	if taskInfo.TaskStatus == "completed" || taskInfo.TaskStatus == "failed" || taskInfo.TaskStatus == "success" {
+	if taskInfo.TaskStatus == model.TaskStatusCompleted || taskInfo.TaskStatus == model.TaskStatusFailed || taskInfo.TaskStatus == model.TaskStatusSuceess {
 
 		if taskInfo.NextTaskID != "" {
 			// 下一个任务
