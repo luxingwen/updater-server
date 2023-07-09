@@ -12,18 +12,19 @@ import (
 	"github.com/google/uuid"
 )
 
-// PackageController is the controller for managing packages.
 type PackageController struct {
 	Service *service.PackageService
 }
 
-// GetAllPackages retrieves all packages.
+// 获取程序所有的安装包
 // @Tags Packages
+// @Summary 获取程序所有的安装包
+// @Description 获取程序所有的安装包
+// @Accept json
 // @Produce json
-// @Param Pagination query model.Pagination true "Pagination data"
-// @Param package query string false "Package Name"
-// @Param arch query string false "Architecture"
-// @Router /v1/packages/list [post]
+// @Param query body model.ReqPackageQuery true "查询参数"
+// @Success 200 {object} model.GetAllProgramPackageResponse
+// @Router /api/v1/program/package/list [post]
 func (pc *PackageController) GetAllPackages(c *app.Context) {
 	var query model.ReqPackageQuery
 	if err := c.ShouldBindJSON(&query); err != nil {
@@ -40,12 +41,15 @@ func (pc *PackageController) GetAllPackages(c *app.Context) {
 	c.JSONSuccess(response)
 }
 
-// CreatePackage creates a new package.
-// @Summary Create a new package
+// 创建安装包
 // @Tags Packages
+// @Summary 创建安装包
+// @Description 创建安装包
+// @Accept json
 // @Produce json
 // @Param Package body model.Package true "Package data"
-// @Router /v1/packages/create [post]
+// @Success 200 {object} model.CreateProgramPackageResponse
+// @Router /api/v1/program/package/create [post]
 func (pc *PackageController) CreatePackage(c *app.Context) {
 	var mpackage model.Package
 	if err := c.ShouldBindJSON(&mpackage); err != nil {
@@ -63,12 +67,15 @@ func (pc *PackageController) CreatePackage(c *app.Context) {
 	c.JSONSuccess(mpackage)
 }
 
-// UpdatePackage updates a package by ID.
+// 更新安装包
 // @Tags Packages
+// @Summary 更新安装包
+// @Description 更新安装包
+// @Accept json
 // @Produce json
-// @Param id path string true "Package ID"
 // @Param Package body model.Package true "Package data"
-// @Router /v1/packages/update/{id} [post]
+// @Success 200 {object} model.CreateProgramPackageResponse
+// @Router /api/v1/program/package/update/{id} [post]
 func (pc *PackageController) UpdatePackage(c *app.Context) {
 	var updatedPackage model.Package
 	id := c.Param("id")
@@ -86,11 +93,15 @@ func (pc *PackageController) UpdatePackage(c *app.Context) {
 	c.JSONSuccess(updatedPackage)
 }
 
-// DeletePackage deletes a package by ID.
+// 删除安装包
 // @Tags Packages
+// @Summary 删除安装包
+// @Description 删除安装包
+// @Accept json
 // @Produce json
 // @Param id path string true "Package ID"
-// @Router /v1/packages/delete/{id} [post]
+// @Success 200 {object} app.Response "Success"
+// @Router /api/v1/program/package/delete/{id} [post]
 func (pc *PackageController) DeletePackage(c *app.Context) {
 	id := c.Param("id")
 	err := pc.Service.DeletePackage(c, id)
@@ -137,7 +148,15 @@ func (pc *PackageController) UploadFile(c *app.Context) {
 
 }
 
-// DeleteFile deletes a file by name.
+// 删除文件
+// @Tags Packages
+// @Summary 删除文件
+// @Description 删除文件
+// @Accept json
+// @Produce json
+// @Param query body model.ReqDeletePackageFile true "File Name"
+// @Success 200 {object} app.Response "Success"
+// @Router /api/v1/program/package/file/delete/{programUuid} [post]
 func (pc *PackageController) DeleteFile(c *app.Context) {
 	programUuid := c.Param("programUuid")
 

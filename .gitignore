@@ -7,3 +7,74 @@ vendor
 bin/*
 docs
 *.log
+
+scripts/test
+
+
+# Byte-compiled / optimized / DLL files
+scripts/test/__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+scripts/test/env/
+scripts/test/build/
+scripts/test/develop-eggs/
+scripts/test/dist/
+scripts/test/downloads/
+scripts/test/eggs/
+scripts/test/.eggs/
+scripts/test/lib/
+scripts/test/lib64/
+scripts/test/parts/
+scripts/test/sdist/
+scripts/test/var/
+scripts/test/*.egg-info/
+scripts/test/.installed.cfg
+scripts/test/*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+scripts/test/pip-log.txt
+scripts/test/pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+scripts/test/htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+scripts/test/nosetests.xml
+scripts/test/coverage.xml
+*,cover
+.hypothesis/
+scripts/test/venv/
+scripts/test/.venv/
+scripts/test/.python-version
+scripts/test/.pytest_cache
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+scripts/test/docs/_build/
+
+# PyBuilder
+scripts/test/target/
+
+#Ipython Notebook
+scripts/test/.ipynb_checkpoints
+

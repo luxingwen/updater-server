@@ -79,6 +79,20 @@ func (ts *TaskService) GetAllTasks(ctx *app.Context, query *model.ReqTaskQuery) 
 		return nil, result.Error
 	}
 
+	for i, item := range tasks {
+		if item.TaskStatus == "running" {
+			isDone, err := ts.CheckTaskStatus(ctx, item.TaskID)
+			if err != nil {
+				return nil, err
+			}
+			if isDone {
+				item.TaskStatus = "completed"
+				tasks[i] = item
+				ts.UpdateTaskStatus(ctx, item.TaskID, "completed")
+			}
+		}
+	}
+
 	var total int64
 	ctx.DB.Model(&model.Task{}).Count(&total)
 
@@ -110,8 +124,20 @@ func (ts *TaskService) CheckTaskStatus(ctx *app.Context, taskID string) (bool, e
 		ctx.Logger.Error("unmarshal task content error:", err)
 		return false, err
 	}
+	tcontent := make([]model.TaskContentInfo, 0)
 
-	tcontent := taskContent.Content.([]model.TaskContentInfo)
+	tcontentBytes, err := json.Marshal(taskContent.Content)
+	if err != nil {
+		ctx.Logger.Error("marshal task content error:", err)
+		return false, err
+	}
+
+	err = json.Unmarshal(tcontentBytes, &tcontent)
+	if err != nil {
+		ctx.Logger.Error("unmarshal task content error:", err)
+		return false, err
+	}
+
 	if taskContent.Type == "task" {
 
 		for _, item := range tcontent {

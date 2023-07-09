@@ -10,22 +10,18 @@ import (
 	"github.com/google/uuid"
 )
 
-// @title Program API
-// @version 1.0
-// @description This is the Program API
-
-// ProgramController ...
 type ProgramController struct {
 	Service *service.ProgramService
 }
 
-// @Summary Get all programs
-// @Description Get all programs
+// 获取所有程序信息
 // @Tags program
+// @Summary 获取所有程序信息
+// @Description 获取所有程序信息
 // @Accept json
 // @Produce json
-// @Param programName query string false "name of the program to get"
-// @Param teamId query string false "teamId of the program to get"
+// @Param query body model.ReqProgrameQuery true "查询参数"
+// @Success 200 {object} model.ProgramQueryResponse
 // @Router /api/v1/program/list [post]
 func (pc *ProgramController) GetAllPrograms(c *app.Context) {
 	var query model.ReqProgrameQuery
@@ -43,12 +39,14 @@ func (pc *ProgramController) GetAllPrograms(c *app.Context) {
 	c.JSONSuccess(response)
 }
 
-// @Summary Delete program
-// @Description Delete program by UUID
+// 删除程序
 // @Tags program
+// @Summary 删除程序
+// @Description 删除程序
 // @Accept json
 // @Produce json
-// @Param uuid path string true "UUID of the program to delete"
+// @Param query body model.ReqProgrameQuery true "查询参数"
+// @Success 200 {object} app.Response "Success"
 // @Router /api/v1/program/delete [post]
 func (pc *ProgramController) DeleteProgram(c *app.Context) {
 
@@ -66,12 +64,14 @@ func (pc *ProgramController) DeleteProgram(c *app.Context) {
 	c.JSONSuccess(gin.H{"message": "Program deleted successfully"})
 }
 
-// @Summary Create program
-// @Description Create new program
+// 创建程序
 // @Tags program
+// @Summary 创建程序
+// @Description 创建程序
 // @Accept json
 // @Produce json
-// @Param body body model.Program true "program object that needs to be added"
+// @Param body body model.Program true "program object that needs to be created"
+// @Success 200 {object} model.ProgramInfoResponse
 // @Router /api/v1/program/create [post]
 func (pc *ProgramController) CreateProgram(c *app.Context) {
 	var program model.Program
@@ -89,12 +89,14 @@ func (pc *ProgramController) CreateProgram(c *app.Context) {
 	c.JSONSuccess(program)
 }
 
-// @Summary Update program
-// @Description Update existing program
+// 更新程序
 // @Tags program
+// @Summary 更新程序
+// @Description 更新程序
 // @Accept json
 // @Produce json
 // @Param body body model.Program true "program object that needs to be updated"
+// @Success 200 {object} model.ProgramInfoResponse
 // @Router /api/v1/program/update [post]
 func (pc *ProgramController) UpdateProgram(c *app.Context) {
 	var updatedProgram model.Program
@@ -112,6 +114,15 @@ func (pc *ProgramController) UpdateProgram(c *app.Context) {
 	c.JSONSuccess(updatedProgram)
 }
 
+// 获取程序详情信息
+// @Tags program
+// @Summary 获取程序详情信息
+// @Description 获取程序详情信息
+// @Accept json
+// @Produce json
+// @Param query body model.ReqProgrameQuery true "查询参数"
+// @Success 200 {object} model.ProgramInfoResponse
+// @Router /api/v1/program/detail [post]
 func (pc *ProgramController) GetProgramDetail(c *app.Context) {
 	var query model.ReqProgrameQuery
 	if err := c.ShouldBindJSON(&query); err != nil {

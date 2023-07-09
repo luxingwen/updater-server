@@ -85,6 +85,12 @@ func (s *ClientService) UpdateClient(ctx *app.Context, client *model.Client) err
 	return nil
 }
 
+// 更新客户端状态
+func (s *ClientService) UpdateClientStatus(ctx *app.Context, clientUuid string, status string) error {
+	err := ctx.DB.Model(&model.Client{}).Where("uuid = ?", clientUuid).Update("status", status).Error
+	return err
+}
+
 func (s *ClientService) DeleteClient(ctx *app.Context, client *model.Client) error {
 	err := ctx.DB.Delete(client).Error
 	if err != nil {
