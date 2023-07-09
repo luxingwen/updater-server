@@ -40,6 +40,7 @@ func (pc *ProxyClient) read() {
 		_, message, err := pc.Conn.ReadMessage()
 		if err != nil {
 			// Handle error
+			log.Println("read message error:", err)
 			break
 		}
 
@@ -132,6 +133,7 @@ func (pm *ProxyManager) AddClient(pc *ProxyClient) {
 func (pm *ProxyManager) RemoveClient(pc *ProxyClient) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
+	log.Println("remove client:", pc.UUID)
 	delete(pm.ProxyClients, pc.UUID)
 }
 
