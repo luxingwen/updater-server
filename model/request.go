@@ -1,6 +1,9 @@
 package model
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"mime/multipart"
+)
 
 type Pagination struct {
 	PageSize int `form:"pageSize"`
@@ -203,4 +206,97 @@ type ReqUuidParam struct {
 type ReqUuidsParam struct {
 	Uuid  string   `json:"uuid"`
 	Uuids []string `json:"uuids"`
+}
+
+// 查询预设任务请求参数
+type ReqPresetTaskQuery struct {
+	Pagination
+	Name     string `json:"name"`     // 任务名称
+	Category string `json:"category"` // 任务分类
+	Type     string `json:"type"`     // 任务类型
+	Creater  string `json:"creater"`  // 创建人
+}
+
+// 创建预设任务请求参数
+type ReqPresetTaskCreate struct {
+	Category          string               `json:"category"`          // 任务分类  mutilTask|batchesTask|programActionTask
+	MutilTask         ReqTaskMultiCreate   `json:"mutilTask"`         // 多个任务信息
+	BatchesTask       ReqTaskBatchCreate   `json:"batchesTask"`       // 批次任务信息
+	ProgramActionTask ReqTaskProgramAction `json:"programActionTask"` // 程序行为任务信息
+}
+
+// 设置任务信息
+func (param *ReqPresetTaskCreate) SetPreTask(preTask *PreTask) {
+	if param.Category == "mutilTask" {
+		preTask.Name = param.MutilTask.TaskName
+		preTask.Type = param.MutilTask.Type
+		preTask.Description = param.MutilTask.Description
+		preTask.Creater = param.MutilTask.Creater
+
+		b, _ := json.Marshal(param.MutilTask)
+		preTask.Content = string(b)
+	}
+
+	if param.Category == "batchesTask" {
+		preTask.Name = param.BatchesTask.Creater
+		preTask.Type = param.BatchesTask.Type
+		preTask.Description = param.BatchesTask.Description
+		preTask.Creater = param.BatchesTask.Creater
+
+		b, _ := json.Marshal(param.BatchesTask)
+		preTask.Content = string(b)
+	}
+
+	if param.Category == "programActionTask" {
+		preTask.Name = param.ProgramActionTask.Name
+		preTask.Type = "program_action"
+		preTask.Description = param.ProgramActionTask.Description
+		preTask.Creater = param.ProgramActionTask.Creater
+
+		b, _ := json.Marshal(param.ProgramActionTask)
+		preTask.Content = string(b)
+	}
+	return
+}
+
+// 更新预设任务请求参数
+type ReqPresetTaskUpdate struct {
+	Uuid string `json:"uuid"` // 预设任务uuid
+	ReqPresetTaskCreate
+}
+
+// 脚本库查询请求参数
+type ReqScriptLibQuery struct {
+	Pagination
+	Name    string `json:"name"`    // 脚本库名称
+	Creater string `json:"creater"` // 创建人
+	TeamId  string `json:"teamId"`  // 团队id
+	Type    string `json:"type"`    // 脚本类型
+	Status  int    `json:"status"`  // 状态
+}
+
+// 文件查询请求参数
+type ReqFileQuery struct {
+	Pagination
+	Name    string `json:"name"`    // 文件名称
+	Creater string `json:"creater"` // 创建人
+	TeamId  string `json:"teamId"`  // 团队id
+	Status  int    `json:"status"`  // 状态
+	Type    string `json:"type"`    // 文件类型
+	DirUuid string `json:"dirUuid"` // 目录uuid
+}
+
+// 文件上传表单参数
+type ReqFileUpload struct {
+	TeamId  string                `from:"teamId"`  // 团队id
+	Creater string                `from:"creater"` // 创建人
+	Dir     string                `from:"dir"`     // 目录
+	File    *multipart.FileHeader `from:"file"`    // 文件
+}
+
+// 创建目录
+type ReqDirCreate struct {
+	TeamId  string `json:"teamId"`  // 团队id
+	Creater string `json:"creater"` // 创建人
+	Dir     string `json:"dir"`     // 目录
 }

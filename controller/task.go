@@ -157,7 +157,10 @@ func (tc *TaskController) CreateMultipleTask(c *app.Context) {
 		c.JSONError(http.StatusBadRequest, err.Error())
 		return
 	}
+	tc.createMultipleTask(c, param)
+}
 
+func (tc *TaskController) createMultipleTask(c *app.Context, param model.ReqTaskMultiCreate) {
 	task := model.Task{
 		TaskID:      uuid.New().String(),
 		TaskName:    param.TaskName,
@@ -254,6 +257,11 @@ func (tc *TaskController) CreateBatchTask(c *app.Context) {
 		c.JSONError(http.StatusBadRequest, err.Error())
 		return
 	}
+
+	tc.createBatchTask(c, param)
+}
+
+func (tc *TaskController) createBatchTask(c *app.Context, param model.ReqTaskBatchCreate) {
 
 	task := model.Task{
 		TaskID:      uuid.New().String(),
