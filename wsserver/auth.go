@@ -31,6 +31,7 @@ func (wc *WsAuthController) HandlerRegister(ctx *Context) (err error) {
 		VMUUID:   clientInfo.Vmuuid,
 		SN:       clientInfo.Sn,
 		ProxyID:  ctx.Client.UUID,
+		Version:  clientInfo.Version,
 	}
 
 	err = wc.ClientService.Register(ctx.AppContext(), client)

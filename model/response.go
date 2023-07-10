@@ -108,3 +108,18 @@ type CreateSingleTaskResponse struct {
 		RecordId string `json:"recordId"` // 任务执行记录 ID
 	} `json:"data"`
 }
+
+type PreTaskInfoResponse struct {
+	BaseResponse
+	Data PreTask `json:"data"`
+}
+
+type PreTaskPageResponse struct {
+	BasePageResponse
+	Data []PreTask `json:"data"`
+}
+
+type PreTaskQueryResponse struct {
+	BaseResponse
+	Data PreTaskPageResponse `json:"data"`
+}

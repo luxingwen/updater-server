@@ -16,6 +16,7 @@ type ClientInfo struct {
 	Arch      string `json:"arch"`     //
 	Heartbeat int64  `json:"hearbeat"` // 心跳时间
 	LocalIPs  string `json:"localIps"` // 本地IP地址
+	Version   string `json:"version"`  // 版本
 }
 
 func HandlerProxyHeartBeat(ctx *Context) (err error) {

@@ -14,6 +14,7 @@ func InitRouter(ctx *app.App) {
 	InitProgramRouter(ctx)
 	InitClientRouter(ctx)
 	InitTaskRouter(ctx)
+	InitPreTaskRouter(ctx)
 	InitWsRouter(ctx)
 }
 
@@ -111,6 +112,23 @@ func InitTaskRouter(ctx *app.App) {
 	{
 		v1.POST("/task/record/list", taskExecRecordDetail.QueryTaskExecRecords)
 		v1.POST("/task/record/detail", taskExecRecordDetail.GetTaskExecRecordInfo)
+	}
+
+}
+
+// 预设任务
+func InitPreTaskRouter(ctx *app.App) {
+	v1 := ctx.Group("/api/v1")
+	preTaskController := &controller.PreTaskController{
+		PreTaskService: &service.PreTaskService{},
+	}
+	{
+		v1.POST("/pre_task/list", preTaskController.QueryPreTasks)
+		v1.POST("/pre_task/create", preTaskController.CreatePreTask)
+		v1.POST("/pre_task/update", preTaskController.UpdatePreTask)
+		v1.POST("/pre_task/delete", preTaskController.DeletePreTask)
+		v1.POST("/pre_task/execute", preTaskController.ExecutePreTask)
+		v1.POST("/pre_task/detail", preTaskController.GetPreTaskDetail)
 	}
 
 }

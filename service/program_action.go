@@ -15,7 +15,6 @@ func (pas *ProgramActionService) GetAllProgramActions(ctx *app.Context, programU
 	if err != nil {
 		return nil, err
 	}
-
 	return actions, nil
 }
 
