@@ -300,3 +300,9 @@ type ReqDirCreate struct {
 	Creater string `json:"creater"` // 创建人
 	Dir     string `json:"dir"`     // 目录
 }
+
+// 危险指令查询参数
+type ReqDangerousCommandQuery struct {
+	Pagination
+	Name string `json:"name"` // 指令名称
+}

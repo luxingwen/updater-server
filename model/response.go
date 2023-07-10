@@ -153,3 +153,18 @@ type FileInfoQueryResponse struct {
 	BaseResponse
 	Data FileInfoPageResponse `json:"data"`
 }
+
+type DangerousCommandInfoResponse struct {
+	BaseResponse
+	Data DangerousCommand `json:"data"`
+}
+
+type DangerousCommandPageResponse struct {
+	BasePageResponse
+	Data []DangerousCommand `json:"data"`
+}
+
+type DangerousCommandQueryResponse struct {
+	BaseResponse
+	Data DangerousCommandPageResponse `json:"data"`
+}
