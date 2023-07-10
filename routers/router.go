@@ -15,6 +15,8 @@ func InitRouter(ctx *app.App) {
 	InitClientRouter(ctx)
 	InitTaskRouter(ctx)
 	InitPreTaskRouter(ctx)
+	InitScriptLibraryRouter(ctx)
+	InitFileInfoRouter(ctx)
 	InitWsRouter(ctx)
 }
 
@@ -130,7 +132,35 @@ func InitPreTaskRouter(ctx *app.App) {
 		v1.POST("/pre_task/execute", preTaskController.ExecutePreTask)
 		v1.POST("/pre_task/detail", preTaskController.GetPreTaskDetail)
 	}
+}
 
+// 脚本库
+func InitScriptLibraryRouter(ctx *app.App) {
+	v1 := ctx.Group("/api/v1")
+	scriptLibraryController := &controller.ScriptLibraryController{
+		ScriptLibraryService: &service.ScriptLibraryService{},
+	}
+	{
+		v1.POST("/script_library/list", scriptLibraryController.GetScriptLibraryList)
+		v1.POST("/script_library/create", scriptLibraryController.CreateScriptLibrary)
+		v1.POST("/script_library/update", scriptLibraryController.UpdateScriptLibrary)
+		v1.POST("/script_library/delete", scriptLibraryController.DeleteScriptLibrary)
+		v1.POST("/script_library/detail", scriptLibraryController.GetScriptLibrary)
+	}
+}
+
+// 文件库
+func InitFileInfoRouter(ctx *app.App) {
+	v1 := ctx.Group("/api/v1")
+	fileInfoController := &controller.FileInfoController{
+		FileInfoService: &service.FileInfoService{},
+	}
+	{
+		v1.POST("/file_info/list", fileInfoController.GetFileList)
+		v1.POST("/file_info/upload", fileInfoController.UploadFile)
+		v1.POST("/file_info/delete", fileInfoController.DeleteFile)
+		v1.POST("/file_info/create_dir", fileInfoController.CreateDir)
+	}
 }
 
 func InitWsRouter(serverApp *app.App) {

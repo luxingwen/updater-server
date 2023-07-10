@@ -123,3 +123,33 @@ type PreTaskQueryResponse struct {
 	BaseResponse
 	Data PreTaskPageResponse `json:"data"`
 }
+
+type ScriptLibraryInfoResponse struct {
+	BaseResponse
+	Data ScriptLibrary `json:"data"`
+}
+
+type ScriptLibraryPageResponse struct {
+	BasePageResponse
+	Data []ScriptLibrary `json:"data"`
+}
+
+type ScriptLibraryQueryResponse struct {
+	BaseResponse
+	Data ScriptLibraryPageResponse `json:"data"`
+}
+
+type FileInfoResponse struct {
+	BaseResponse
+	Data FileInfo `json:"data"`
+}
+
+type FileInfoPageResponse struct {
+	BasePageResponse
+	Data []FileInfo `json:"data"`
+}
+
+type FileInfoQueryResponse struct {
+	BaseResponse
+	Data FileInfoPageResponse `json:"data"`
+}

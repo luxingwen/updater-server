@@ -1,6 +1,9 @@
 package model
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"mime/multipart"
+)
 
 type Pagination struct {
 	PageSize int `form:"pageSize"`
@@ -260,4 +263,40 @@ func (param *ReqPresetTaskCreate) SetPreTask(preTask *PreTask) {
 type ReqPresetTaskUpdate struct {
 	Uuid string `json:"uuid"` // 预设任务uuid
 	ReqPresetTaskCreate
+}
+
+// 脚本库查询请求参数
+type ReqScriptLibQuery struct {
+	Pagination
+	Name    string `json:"name"`    // 脚本库名称
+	Creater string `json:"creater"` // 创建人
+	TeamId  string `json:"teamId"`  // 团队id
+	Type    string `json:"type"`    // 脚本类型
+	Status  int    `json:"status"`  // 状态
+}
+
+// 文件查询请求参数
+type ReqFileQuery struct {
+	Pagination
+	Name    string `json:"name"`    // 文件名称
+	Creater string `json:"creater"` // 创建人
+	TeamId  string `json:"teamId"`  // 团队id
+	Status  int    `json:"status"`  // 状态
+	Type    string `json:"type"`    // 文件类型
+	DirUuid string `json:"dirUuid"` // 目录uuid
+}
+
+// 文件上传表单参数
+type ReqFileUpload struct {
+	TeamId  string                `from:"teamId"`  // 团队id
+	Creater string                `from:"creater"` // 创建人
+	Dir     string                `from:"dir"`     // 目录
+	File    *multipart.FileHeader `from:"file"`    // 文件
+}
+
+// 创建目录
+type ReqDirCreate struct {
+	TeamId  string `json:"teamId"`  // 团队id
+	Creater string `json:"creater"` // 创建人
+	Dir     string `json:"dir"`     // 目录
 }
