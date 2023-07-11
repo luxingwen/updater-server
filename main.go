@@ -33,6 +33,7 @@ import (
 func main() {
 	config.InitConfig()
 	serverApp := app.NewApp()
+	//model.MigrateDbTable(serverApp.DB)
 
 	serverApp.Router.GET("/swagger/doc.json", func(c *gin.Context) {
 		jsonFile, err := ioutil.ReadFile("./docs/swagger.json") // Replace with your actual json file path
@@ -41,6 +42,15 @@ func main() {
 			return
 		}
 		c.Data(http.StatusOK, "application/json", jsonFile)
+	})
+
+	serverApp.Router.GET("/swagger/redoc.standalone.js", func(c *gin.Context) {
+		b, err := ioutil.ReadFile("./swagger/redoc.standalone.js") // Replace with your actual json file path
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.Data(http.StatusOK, "text/html; charset=utf-8", b)
 	})
 
 	serverApp.Router.GET("/swagger/index.html", func(c *gin.Context) {
