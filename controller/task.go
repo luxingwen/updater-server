@@ -127,12 +127,18 @@ func (tc *TaskController) CreateSingleTask(c *app.Context) {
 		return
 	}
 
-	executor.EnqueueTask(c, executor.TaskExecItem{
+	err = executor.EnqueueTask(c, executor.TaskExecItem{
 		TaskID:   record.RecordID,
 		Category: "record",
 		TaskType: "sub",
 		TraceId:  c.TraceID,
 	})
+
+	if err != nil {
+		c.Logger.Error(fmt.Sprintf("enqueue task error: %s", err.Error()))
+		c.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	mdata := make(map[string]interface{})
 	mdata["recordId"] = record.RecordID

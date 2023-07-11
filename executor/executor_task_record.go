@@ -170,6 +170,7 @@ func (es *ExecutorServer) ExecuteScript(ctx *app.Context, recordInfo *model.Task
 		Timeout:     scriptReq.Timeout,
 		Interpreter: scriptReq.Interpreter,
 		Stdin:       scriptReq.Stdin,
+		Env:         make(map[string]string, 0),
 	}
 
 	for _, item := range scriptReq.Envs {

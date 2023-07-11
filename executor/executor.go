@@ -34,6 +34,7 @@ type TaskExecItem struct {
 func EnqueueTask(ctx *app.Context, task TaskExecItem) error {
 	taskJSON, err := json.Marshal(task)
 	if err != nil {
+		ctx.Logger.Error("marshal task error:", err)
 		return err
 	}
 
@@ -41,6 +42,13 @@ func EnqueueTask(ctx *app.Context, task TaskExecItem) error {
 }
 
 func (es *ExecutorServer) Execute(ctx *app.Context) error {
+
+	defer func() {
+		if r := recover(); r != nil {
+			es.WsContext.Logger.Errorf("Recovered from panic in Worker Execute: %v\n%s", r, debug.Stack())
+		}
+	}()
+
 	taskJSON, err := ctx.Redis.Dequeue(context.Background(), TaskQueueKey)
 	if err != nil {
 		//ctx.Logger.Error("dequeue task error:", err)
@@ -57,12 +65,12 @@ func (es *ExecutorServer) Execute(ctx *app.Context) error {
 	ctx.Logger = ctx.Logger.With(zap.String("traceID", task.TraceId))
 
 	if task.Category == "task" {
-		es.ExecuteTask(ctx, task)
+		go es.ExecuteTask(ctx, task)
 	}
 
 	// 分批任务
 	if task.Category == "record" {
-		es.ExecuteTaskRecord(ctx, task)
+		go es.ExecuteTaskRecord(ctx, task)
 	}
 	return nil
 }
