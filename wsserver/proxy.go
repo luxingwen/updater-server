@@ -153,6 +153,7 @@ func (pm *ProxyManager) AddClient(pc *ProxyClient) {
 func (pm *ProxyManager) RemoveClient(pc *ProxyClient) {
 	pm.mu.Lock()
 	defer pm.mu.Unlock()
+	log.Println("remove client:", pc.UUID)
 	delete(pm.ProxyClients, pc.UUID)
 	close(pc.MsgIn)
 	pc = nil

@@ -17,6 +17,7 @@ func InitRouter(ctx *app.App) {
 	InitPreTaskRouter(ctx)
 	InitScriptLibraryRouter(ctx)
 	InitFileInfoRouter(ctx)
+	InitDangerousCommandRouter(ctx)
 	InitWsRouter(ctx)
 }
 
@@ -160,6 +161,21 @@ func InitFileInfoRouter(ctx *app.App) {
 		v1.POST("/file_info/upload", fileInfoController.UploadFile)
 		v1.POST("/file_info/delete", fileInfoController.DeleteFile)
 		v1.POST("/file_info/create_dir", fileInfoController.CreateDir)
+	}
+}
+
+// 危险指令
+func InitDangerousCommandRouter(ctx *app.App) {
+	v1 := ctx.Group("/api/v1")
+	dangerousCommandController := &controller.DangerousCommandController{
+		DangerousCommandService: &service.DangerousCommandService{},
+	}
+	{
+		v1.POST("/dangerous_command/create", dangerousCommandController.CreateDangerousCommand)
+		v1.POST("/dangerous_command/update", dangerousCommandController.UpdateDangerousCommand)
+		v1.POST("/dangerous_command/delete", dangerousCommandController.DeleteDangerousCommand)
+		v1.POST("/dangerous_command/list", dangerousCommandController.GetDangerousCommandList)
+		v1.POST("/dangerous_command/detail", dangerousCommandController.GetDangerousCommandInfo)
 	}
 }
 
