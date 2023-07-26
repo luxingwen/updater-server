@@ -12,6 +12,7 @@ type PreTask struct {
 	Type        string    `json:"type"`        // 任务类型
 	Category    string    `json:"category"`    // 任务分类
 	Creater     string    `json:"creater"`     // 创建人
+	Status      int       `json:"status"`      // 状态 0:不可用 1:正常 2:删除
 	CreateAt    time.Time `json:"create_at"`   // 创建时间
 	UpdateAt    time.Time `json:"update_at"`   // 更新时间
 }

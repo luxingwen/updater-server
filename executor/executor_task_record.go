@@ -390,5 +390,8 @@ func (es *ExecutorServer) HandleResScript(ctx *wsserver.Context) (err error) {
 		ctx.Logger.Error("update record error:", err)
 		return
 	}
+
+	err = es.WsContext.SendRequest(ctx.Message.From, "v1/ExecuteScript/Response", ctx.TraceID, scriptRes.TaskID, nil)
+
 	return
 }
