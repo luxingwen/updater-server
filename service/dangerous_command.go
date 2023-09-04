@@ -1,6 +1,7 @@
 package service
 
 import (
+	"regexp"
 	"updater-server/model"
 
 	"updater-server/pkg/app"
@@ -75,5 +76,29 @@ func (service *DangerousCommandService) GetDangerousCommandInfo(ctx *app.Context
 
 	r = &data
 
+	return
+}
+
+// 检查危险指令
+func (service *DangerousCommandService) CheckDangerousCommand(ctx *app.Context, param model.ReqDangerousCommandCheck) (r []*model.DangerousCommand, err error) {
+
+	rlist := make([]*model.DangerousCommand, 0)
+
+	err = ctx.DB.Where("platform = ?", param.CmdType).Find(&rlist).Error
+	if err != nil {
+		return
+	}
+
+	for _, item := range rlist {
+		if item.CmdType == "2" {
+			match, err := regexp.MatchString(item.Content, param.Content)
+			if err != nil {
+				continue
+			}
+			if match {
+				r = append(r, item)
+			}
+		}
+	}
 	return
 }

@@ -31,6 +31,10 @@ func (ws *WsController) Connect(c *app.Context) {
 	go ws.MessageHandler.HandleMessages(client, 100)
 }
 
+func (ws *WsController) GetServerId(c *app.Context) {
+	c.JSONSuccess(c.AppId)
+}
+
 func (ws *WsController) GetAllProxy(c *app.Context) {
 	r := ws.MessageHandler.Context.Proxy.GetAllProxy()
 	type porxyInfo struct {

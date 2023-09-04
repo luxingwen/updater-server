@@ -366,6 +366,7 @@ func (es *ExecutorServer) HandleResDownloadFile(ctx *wsserver.Context) (err erro
 	return
 }
 
+// 执行脚本结果
 func (es *ExecutorServer) HandleResScript(ctx *wsserver.Context) (err error) {
 	var scriptRes ScriptResult
 	err = json.Unmarshal(ctx.Message.Data, &scriptRes)
@@ -391,6 +392,7 @@ func (es *ExecutorServer) HandleResScript(ctx *wsserver.Context) (err error) {
 		return
 	}
 
+	// 发送响应
 	err = es.WsContext.SendRequest(ctx.Message.From, "v1/ExecuteScript/Response", ctx.TraceID, scriptRes.TaskID, nil)
 
 	return

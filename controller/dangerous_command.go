@@ -125,3 +125,36 @@ func (dc *DangerousCommandController) GetDangerousCommandInfo(ctx *app.Context) 
 	}
 	ctx.JSONSuccess(r)
 }
+
+// 检查危险指令
+// @Summary 检查危险指令
+// @Description 检查危险指令
+// @Tags 危险指令
+// @Accept json
+// @Produce json
+// @Param param body  model.ReqDangerousCommandCheck  true "危险指令"
+// @Success 200 {object}  model.ResCheckDangerousCommandResponse
+// @Router /api/v1/dangerous_command/check [post]
+func (dc *DangerousCommandController) CheckDangerousCommand(ctx *app.Context) {
+	var param model.ReqDangerousCommandCheck
+	if err := ctx.ShouldBindJSON(&param); err != nil {
+		ctx.JSONError(http.StatusBadRequest, err.Error())
+		return
+	}
+	r, err := dc.DangerousCommandService.CheckDangerousCommand(ctx, param)
+	if err != nil {
+		ctx.JSONError(http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	mdata := make(map[string]interface{}, 0)
+
+	mdata["list"] = r
+
+	mdata["isExist"] = false
+	if len(r) > 0 {
+		mdata["isExist"] = true
+	}
+
+	ctx.JSONSuccess(mdata)
+}

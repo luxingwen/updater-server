@@ -306,3 +306,8 @@ type ReqDangerousCommandQuery struct {
 	Pagination
 	Name string `json:"name"` // 指令名称
 }
+
+type ReqDangerousCommandCheck struct {
+	Content string `json:"content"` // 指令内容
+	CmdType string `json:"cmdType"` // 指令类型
+}

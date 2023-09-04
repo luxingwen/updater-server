@@ -168,3 +168,11 @@ type DangerousCommandQueryResponse struct {
 	BaseResponse
 	Data DangerousCommandPageResponse `json:"data"`
 }
+
+type ResCheckDangerousCommandResponse struct {
+	BaseResponse
+	Data struct {
+		IsExist bool               `json:"isExist"` // 是否存在危险指令
+		List    []DangerousCommand `json:"list"`    // 危险指令列表
+	} `json:"data"` // 是否存在危险指令
+}

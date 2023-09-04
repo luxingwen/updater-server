@@ -193,6 +193,7 @@ func InitWsRouter(serverApp *app.App) {
 	}
 
 	serverApp.GET("/api/v1/ws/:uuid", wsController.Connect)
+	serverApp.GET("/api/v1/serverid", wsController.GetServerId)
 	serverApp.POST("/api/v1/proxy/info", wsController.GetAllProxy)
 
 	executeServer := executor.ExecutorServer{

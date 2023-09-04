@@ -7,6 +7,7 @@ import (
 	"updater-server/pkg/redisop"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	glogger "gorm.io/gorm/logger"
 )
@@ -17,6 +18,7 @@ type App struct {
 	Logger *logger.Logger
 	Config *config.Config
 	Router *gin.Engine
+	AppId  string // 新增 AppId 字段
 }
 
 type AppRouterGroup struct {
@@ -49,6 +51,8 @@ func NewApp() *App {
 	if app.Config.RedisConfig.Address != "" {
 		app.Redis = redisop.NewRedisClient(app.Config.RedisConfig.Address, app.Config.RedisConfig.Password, app.Config.RedisConfig.Database)
 	}
+
+	app.AppId = uuid.New().String()
 	return app
 }
 

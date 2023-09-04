@@ -19,6 +19,7 @@ type Context struct {
 	Logger  *logger.Logger
 	Config  *config.Config
 	TraceID string
+	AppId   string
 }
 
 type HandlerFunc func(*Context)
@@ -40,6 +41,7 @@ func (app *App) Wrap(hf HandlerFunc) gin.HandlerFunc {
 			),
 			Config:  app.Config,
 			TraceID: traceID,
+			AppId:   app.AppId,
 		}
 		hf(cc)
 	}
